@@ -13,26 +13,27 @@ Chinese guide: [docs/zh-CN.md](docs/zh-CN.md)
 
 Prerequisites: Ruby with Bundler (`ruby -v`, `bundle -v`). The deploy workflow builds with Ruby 3.2, so a local Ruby 3.x via [rbenv](https://github.com/rbenv/rbenv) or Homebrew is recommended; the preinstalled macOS system Ruby also works. On Ubuntu/Debian: `sudo apt install ruby-full build-essential`, then `gem install bundler`.
 
+Ruby is only needed for local preview. If you don't plan to preview locally, skip steps 2-3 — GitHub Actions builds and deploys the site on every push.
+
 1. Copy this directory into a new repository.
-2. Open `_posts` as an Obsidian vault.
-3. Install dependencies:
+2. Install dependencies:
 
    ```sh
    bundle config set path vendor/bundle
    bundle install
    ```
 
-4. Preview locally:
+3. Preview locally:
 
    ```sh
    bundle exec jekyll serve
    ```
 
-5. Push to GitHub and set Pages to deploy from GitHub Actions.
+4. Push to GitHub and set Pages to deploy from GitHub Actions.
 
 ## Writing Posts
 
-Scaffold a post with the bundled CLI:
+Write posts in Obsidian — open `_posts` as a vault — or scaffold a post template with the bundled CLI:
 
 ```sh
 bin/obsidian-jekyll new-post my-first-post --title "My First Post"

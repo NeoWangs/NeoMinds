@@ -6,26 +6,27 @@
 
 前置条件：本机需要 Ruby 和 Bundler（用 `ruby -v`、`bundle -v` 确认）。部署工作流使用 Ruby 3.2 构建，本地建议通过 [rbenv](https://github.com/rbenv/rbenv) 或 Homebrew 安装 Ruby 3.x；macOS 自带的系统 Ruby 也可以运行。Ubuntu/Debian 可执行 `sudo apt install ruby-full build-essential`，再 `gem install bundler`。
 
+Ruby 环境只用于本地预览。如果不打算在本地预览，可以跳过第 2、3 步——每次 push 后 GitHub Actions 会自动构建并部署站点。
+
 1. 复制本仓库作为新博客仓库。
-2. 在 Obsidian 中打开 `_posts` 目录作为 vault。
-3. 安装依赖：
+2. 安装依赖：
 
    ```sh
    bundle config set path vendor/bundle
    bundle install
    ```
 
-4. 本地预览：
+3. 本地预览：
 
    ```sh
    bundle exec jekyll serve
    ```
 
-5. 推送到 GitHub 后，把 Pages 发布源设置为 GitHub Actions。
+4. 推送到 GitHub 后，把 Pages 发布源设置为 GitHub Actions。
 
 ## 写文章
 
-可以用自带的 CLI 快速创建文章：
+可以在 Obsidian 中打开 `_posts` 目录作为 vault 直接写作，也可以用自带的 CLI 快速创建文章模板：
 
 ```sh
 bin/obsidian-jekyll new-post my-first-post --title "我的第一篇文章"
