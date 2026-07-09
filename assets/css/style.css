@@ -396,9 +396,11 @@ h1 {
 .oj-card-wrap {
   display: block;
   width: 100%;
+  overflow: hidden;
 }
 
 .oj-card {
+  float: left;
   width: 240px;
   padding: 0 12px 18px 0;
 }
