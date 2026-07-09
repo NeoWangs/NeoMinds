@@ -1,0 +1,45 @@
+title: Obsidian Jekyll Starter
+description: An Obsidian-first Jekyll blog starter.
+author: Your Name
+lang: en
+timezone: UTC
+url: ""
+baseurl: ""
+
+permalink: /:year/:month/:day/:slug/
+future: true
+markdown: kramdown
+highlighter: rouge
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+feed:
+  path: atom.xml
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - vendor
+  - .bundle
+
+obsidian_jekyll:
+  default_theme: light
+  mathjax: true
+  categories:
+    - name: notes
+      title: Notes
+      description: Essays, thoughts, and evergreen notes.
+    - name: lab
+      title: Lab
+      description: Experiments, demos, and working notes.
+

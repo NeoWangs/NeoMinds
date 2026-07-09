@@ -1,0 +1,26 @@
+---
+layout: default
+---
+<main class="page">
+  <section class="list-hero">
+    <p class="eyebrow">Archive</p>
+    <h1>{{ page.title | default: 'Archive' }}</h1>
+  </section>
+
+  {% assign groups = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+  {% for group in groups %}
+  <section class="year-group">
+    <h2>{{ group.name }}</h2>
+    <div class="post-list">
+      {% for post in group.items %}
+      <a class="post-row" href="{{ post.url | relative_url }}">
+        <span class="post-row__date">{{ post.date | date: '%m.%d' }}</span>
+        <span class="post-row__title">{{ post.title }}</span>
+        <span class="post-row__meta">{% if post.tags and post.tags.size > 0 %}#{{ post.tags[0] }}{% endif %}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</main>
+

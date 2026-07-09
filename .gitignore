@@ -1,0 +1,10 @@
+_site/
+.jekyll-cache/
+.sass-cache/
+vendor/
+.bundle/
+.DS_Store
+*.gem
+/_posts/.obsidian/workspace.json
+/_posts/.obsidian/workspace-mobile.json
+

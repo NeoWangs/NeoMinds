@@ -1,0 +1,39 @@
+---
+layout: default
+---
+<main class="page">
+  <article class="post">
+    <a class="post__back" href="{{ '/archive/' | relative_url }}">Archive</a>
+    <h1>{{ page.title }}</h1>
+    <div class="post__meta">
+      <span>{{ page.date | date: '%Y.%m.%d' }}</span>
+      {% assign first_category = page.category | default: page.categories[0] %}
+      {% if first_category %}
+      <a href="{{ '/categories/' | append: first_category | append: '/' | relative_url }}">{{ first_category }}</a>
+      {% endif %}
+      {% for tag in page.tags %}
+      {% assign tag_path = tag | strip | replace: '/', '-' %}
+      <a href="{{ '/tags/' | append: tag_path | append: '/' | relative_url }}">#{{ tag }}</a>
+      {% endfor %}
+    </div>
+    <div class="post-content">
+      {{ content }}
+    </div>
+  </article>
+
+  <nav class="post-nav" aria-label="Post navigation">
+    {% if page.previous %}
+    <a href="{{ page.previous.url | relative_url }}">
+      <small>Previous</small>
+      <span>{{ page.previous.title }}</span>
+    </a>
+    {% endif %}
+    {% if page.next %}
+    <a href="{{ page.next.url | relative_url }}">
+      <small>Next</small>
+      <span>{{ page.next.title }}</span>
+    </a>
+    {% endif %}
+  </nav>
+</main>
+

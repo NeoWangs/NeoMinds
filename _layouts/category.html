@@ -1,0 +1,21 @@
+---
+layout: default
+---
+<main class="page">
+  <section class="list-hero">
+    <p class="eyebrow">Category</p>
+    <h1>{{ page.title | default: page.category }}</h1>
+  </section>
+
+  {% assign category_posts = site.categories[page.category] %}
+  <div class="post-list">
+    {% for post in category_posts %}
+    <a class="post-row" href="{{ post.url | relative_url }}">
+      <span class="post-row__date">{{ post.date | date: '%Y.%m.%d' }}</span>
+      <span class="post-row__title">{{ post.title }}</span>
+      <span class="post-row__meta">{% if post.tags and post.tags.size > 0 %}#{{ post.tags[0] }}{% endif %}</span>
+    </a>
+    {% endfor %}
+  </div>
+</main>
+
