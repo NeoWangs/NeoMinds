@@ -37,9 +37,10 @@ categories:
 tags:
   - "Obsidian"
   - "Jekyll"
-permalink: "/2026/07/09/hello-world/"
 ---
 ```
+
+不需要手写 `permalink`：最终 URL 由 `_config.yml` 里的全局规则（`/:year/:month/:day/:slug/`）根据文章的 `date` 和 `slug` 自动组装。`slug` 也可以省略，默认取文件名。
 
 如果文章有图片，建议放在文章同名目录下：
 

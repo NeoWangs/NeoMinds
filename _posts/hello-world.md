@@ -9,7 +9,6 @@ categories:
 tags:
   - "Obsidian"
   - "Jekyll"
-permalink: "/2026/07/09/hello-world/"
 ---
 
 This post is stored as plain Markdown and can be edited directly in Obsidian.

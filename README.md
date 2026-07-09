@@ -44,9 +44,10 @@ categories:
 tags:
   - "Obsidian"
   - "Jekyll"
-permalink: "/2026/07/09/hello-world/"
 ---
 ```
+
+There is no need to write a `permalink`. The final URL is assembled from the global pattern in `_config.yml` (`/:year/:month/:day/:slug/`) using the post's `date` and `slug`. The `slug` itself is also optional — it defaults to the filename.
 
 The `slug` should match the optional asset folder beside the post:
 
