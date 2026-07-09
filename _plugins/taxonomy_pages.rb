@@ -43,8 +43,9 @@ module Jekyll
     end
 
     def category_pages(site)
-      categories = site.categories.keys.sort
       configured = site.config.dig("obsidian_jekyll", "categories") || []
+      configured_names = configured.map { |item| item["name"].to_s.strip }.reject(&:empty?)
+      categories = (site.categories.keys + configured_names).uniq.sort
 
       categories.map do |category|
         config = configured.find { |item| item["name"] == category } || {}

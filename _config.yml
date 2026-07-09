@@ -29,6 +29,7 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - README.md
+  - docs
   - vendor
   - .bundle
 
