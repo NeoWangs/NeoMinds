@@ -56,7 +56,7 @@ module Jekyll
         next Regexp.last_match(0) if relative_asset_path.include?("..")
         next Regexp.last_match(0) unless File.file?(File.join(asset_dir, relative_asset_path))
 
-        "#{prefix}#{File.join(doc.url, relative_asset_path)}#{suffix}"
+        "#{prefix}#{File.join(doc.site.baseurl.to_s, doc.url, relative_asset_path)}#{suffix}"
       end
     end
 
