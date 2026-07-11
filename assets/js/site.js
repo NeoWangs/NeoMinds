@@ -124,9 +124,14 @@
       cursor.files.push(item);
     });
     var currentSlug = body.getAttribute("data-current-slug") || "";
+    var currentUrl = body.getAttribute("data-current-url") || "";
+
+    function isCurrent(file) {
+      return currentUrl ? file.url === currentUrl : file.slug === currentSlug;
+    }
 
     function hasCurrent(node) {
-      return node.files.some(function (file) { return file.slug === currentSlug; }) || sortKeys(node.folders).some(function (key) { return hasCurrent(node.folders[key]); });
+      return node.files.some(isCurrent) || sortKeys(node.folders).some(function (key) { return hasCurrent(node.folders[key]); });
     }
 
     function renderNode(node, depth) {
@@ -143,7 +148,7 @@
         button.appendChild(arrow);
         button.appendChild(document.createTextNode(name));
         var nested = renderNode(child, depth + 1);
-        var expanded = depth > 0 && hasCurrent(child);
+        var expanded = hasCurrent(child);
         button.classList.toggle("is-collapsed", !expanded);
         button.setAttribute("aria-expanded", String(expanded));
         button.addEventListener("click", function () {
@@ -158,9 +163,11 @@
       node.files.sort(function (a, b) { return a.title.localeCompare(b.title, "zh-Hans-CN"); }).forEach(function (file) {
         var item = document.createElement("li");
         var link = document.createElement("a");
-        link.className = "explorer-file" + (file.slug === currentSlug ? " is-current" : "");
+        var current = isCurrent(file);
+        link.className = "explorer-file" + (current ? " is-current" : "");
         link.href = file.url;
         link.textContent = file.title;
+        if (current) link.setAttribute("aria-current", "page");
         item.appendChild(link);
         list.appendChild(item);
       });
@@ -168,6 +175,16 @@
     }
 
     target.replaceChildren(renderNode(tree, 0));
+    var currentLink = target.querySelector(".explorer-file.is-current");
+    var sidebar = target.closest("[data-left-sidebar]");
+    if (currentLink && sidebar) {
+      window.requestAnimationFrame(function () {
+        var sidebarRect = sidebar.getBoundingClientRect();
+        var linkRect = currentLink.getBoundingClientRect();
+        var centeredOffset = linkRect.top - sidebarRect.top - (sidebar.clientHeight - linkRect.height) / 2;
+        sidebar.scrollTop = Math.max(0, sidebar.scrollTop + centeredOffset);
+      });
+    }
   }
 
   function initExplorer() {
