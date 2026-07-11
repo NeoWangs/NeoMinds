@@ -37,9 +37,22 @@ Ruby 环境只用于本地预览。如果不打算在本地预览，可以跳过
 bin/obsidian-jekyll new-post my-first-post --title "我的第一篇文章"
 ```
 
-命令会生成 `_posts/my-first-post.md`（front matter 已填好）和同名资源目录 `_posts/my-first-post/`，`--category` 可指定分类（默认 `notes`）。
+命令会生成 `_posts/notes/my-first-post.md`（front matter 已填好）和同名资源目录 `_posts/notes/my-first-post/`，`--category` 可指定分类文件夹（默认 `notes`）。
 
-文章放在 `_posts` 里，文件名不需要 Jekyll 默认的日期前缀。发布日期写在 front matter 中：
+文章按分类目录放在 `_posts` 里，文件名不需要 Jekyll 默认的日期前缀。发布日期写在 front matter 中：
+
+`_posts/index.md` 是唯一的首页内容源，会直接渲染到 `/`，不再维护另一份根目录 `index.html`。
+
+### 不发布的私有目录
+
+需要让某个目录只保留在本地、既不渲染也不提交到 Git 时，把它相对于 `_posts` 的完整路径写入 `_posts/.gitignore`：
+
+```gitignore
+/private/
+/AI/drafts/
+```
+
+规则必须以 `/` 开头，末尾的 `/` 可以省略。Git 会忽略这些目录，站点读取器也会用同一份名单将其排除在归档、搜索、订阅和构建结果之外。如果目录里的文件以前已经提交过，需要执行一次 `git rm -r --cached _posts/目录路径`，将其从 Git 索引移除但保留本地文件。
 
 ```yaml
 ---
@@ -61,8 +74,8 @@ tags:
 如果文章有图片，建议放在文章同名目录下：
 
 ```text
-_posts/hello-world.md
-_posts/hello-world/cover.svg
+_posts/notes/hello-world.md
+_posts/notes/hello-world/cover.svg
 ```
 
 正文里使用相对路径：
@@ -72,6 +85,8 @@ _posts/hello-world/cover.svg
 ```
 
 这样 Obsidian 可以直接预览图片，Jekyll 构建时会把图片发布到文章最终 URL 下。
+
+全局资源也可以直接放在 `_posts/_resources/` 或对应分类目录中。这样 Obsidian 能从 vault 内直接解析，Jekyll 构建时则会将它们发布到兼容旧链接的 `/assets/obsidian/` 地址。
 
 ## Obsidian 友好的增强语法
 
@@ -108,4 +123,3 @@ _posts/hello-world/cover.svg
 - `[!card]`、`[!pin]`、`[!poem]` 会转换成网页卡片。
 - 标签页和分类页自动生成。
 - GitHub Actions 使用 Pages artifact 部署。
-

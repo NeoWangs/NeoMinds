@@ -1,21 +1,10 @@
 ---
 layout: default
 ---
-<main class="page">
-  <section class="list-hero">
-    <p class="eyebrow">Tag</p>
-    <h1>#{{ page.tag }}</h1>
-  </section>
-
+<main class="page page--list">
   {% assign tag_posts = site.tags[page.tag] %}
-  <div class="post-list">
-    {% for post in tag_posts %}
-    <a class="post-row" href="{{ post.url | relative_url }}">
-      <span class="post-row__date">{{ post.date | date: '%Y.%m.%d' }}</span>
-      <span class="post-row__title">{{ post.title }}</span>
-      <span class="post-row__meta">{% assign first_category = post.category | default: post.categories[0] %}{{ first_category }}</span>
-    </a>
-    {% endfor %}
+  <header class="article-header"><p class="breadcrumbs">主页 / 标签</p><h1>#{{ page.tag }}</h1><p class="content-meta">{{ tag_posts.size }} 篇关联笔记</p></header>
+  <div class="compact-note-list compact-note-list--full">
+    {% for post in tag_posts %}{% assign first_category = post.category | default: post.categories[0] %}<a href="{{ post.url | relative_url }}"><time>{{ post.date | date: '%Y.%m.%d' }}</time><span>{{ post.title }}</span><small>{{ first_category }}</small></a>{% endfor %}
   </div>
 </main>
-

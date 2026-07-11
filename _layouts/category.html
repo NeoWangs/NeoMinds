@@ -1,21 +1,10 @@
 ---
 layout: default
 ---
-<main class="page">
-  <section class="list-hero">
-    <p class="eyebrow">Category</p>
-    <h1>{{ page.title | default: page.category }}</h1>
-  </section>
-
-  {% assign category_posts = site.categories[page.category] %}
-  <div class="post-list">
-    {% for post in category_posts %}
-    <a class="post-row" href="{{ post.url | relative_url }}">
-      <span class="post-row__date">{{ post.date | date: '%Y.%m.%d' }}</span>
-      <span class="post-row__title">{{ post.title }}</span>
-      <span class="post-row__meta">{% if post.tags and post.tags.size > 0 %}#{{ post.tags[0] }}{% endif %}</span>
-    </a>
-    {% endfor %}
+<main class="page page--list">
+  {% assign category_info = site.obsidian_jekyll.categories | where: 'name', page.category | first %}{% assign category_posts = site.categories[page.category] %}
+  <header class="article-header"><p class="breadcrumbs">主页 / {{ page.category }}</p><h1>{{ page.title | default: page.category }}</h1><p class="content-meta">{{ category_info.description | default: '按主题整理的长期笔记。' }} · {{ category_posts.size }} 篇</p></header>
+  <div class="compact-note-list compact-note-list--full">
+    {% for post in category_posts %}<a href="{{ post.url | relative_url }}"><time>{{ post.date | date: '%Y.%m.%d' }}</time><span>{{ post.title }}</span><small>{% if post.tags and post.tags.size > 0 %}#{{ post.tags[0] }}{% endif %}</small></a>{% endfor %}
   </div>
 </main>
-

@@ -5,9 +5,53 @@
 module Jekyll
   OBSIDIAN_POST_FILENAME_MATCHER = %r!^(?:.+/)*(.*)(\.(?:md|markdown|mkd|mkdn|mdown))$!i.freeze
 
+  module ObsidianPostIgnore
+    CONFIG_PATH = File.join("_posts", ".gitignore").freeze
+    DIRECTORY_PATTERN = %r{\A/([^*?!\[\]]+)/?\z}.freeze
+
+    module_function
+
+    def directories(site)
+      site.config["obsidian_ignored_post_dirs"] ||= load_directories(site)
+    end
+
+    def ignored?(site, path)
+      posts_root = File.expand_path(site.in_source_dir("_posts"))
+      relative = File.expand_path(path).delete_prefix("#{posts_root}/")
+      directories(site).any? do |directory|
+        relative == directory || relative.start_with?("#{directory}/")
+      end
+    end
+
+    def load_directories(site)
+      path = site.in_source_dir(CONFIG_PATH)
+      return [] unless File.file?(path)
+
+      File.readlines(path, :encoding => "UTF-8").each_with_object([]) do |line, result|
+        rule = line.strip
+        next if rule.empty? || rule.start_with?("#")
+
+        match = rule.match(DIRECTORY_PATTERN)
+        unless match
+          Jekyll.logger.warn "Post ignore:", "Skipping unsupported rule #{rule.inspect}; use /folder/path or /folder/path/."
+          next
+        end
+
+        directory = match[1].sub(%r{\A_posts/}, "").sub(%r{/\z}, "")
+        parts = directory.split("/")
+        next if directory.empty? || parts.any? { |part| part.empty? || part == "." || part == ".." }
+
+        result << directory unless result.include?(directory)
+      end
+    end
+  end
+
   class PostReader
     def read_posts(dir)
-      read_publishable(dir, "_posts", OBSIDIAN_POST_FILENAME_MATCHER)
+      read_content(dir, "_posts", OBSIDIAN_POST_FILENAME_MATCHER)
+        .reject { |doc| ObsidianPostIgnore.ignored?(site, doc.path) }
+        .tap { |docs| docs.each(&:read) }
+        .select { |doc| processable?(doc) }
     end
   end
 
@@ -19,6 +63,45 @@ module Jekyll
 
     def url
       @post_asset_url
+    end
+  end
+
+  class ObsidianVaultAssetFile < StaticFile
+    def initialize(site, base, dir, name, asset_url)
+      super(site, base, dir, name)
+      @asset_url = asset_url
+    end
+
+    def url
+      @asset_url
+    end
+  end
+
+  module ObsidianVaultAssets
+    SOURCE_ROOT = "_posts".freeze
+    URL_ROOT = "assets/obsidian".freeze
+    MARKDOWN_EXTENSIONS = %w(.md .markdown .mkd .mkdn .mdown).freeze
+
+    module_function
+
+    def register_static_files(site)
+      root = site.in_source_dir(SOURCE_ROOT)
+      return unless File.directory?(root)
+
+      Dir.glob(File.join(root, "**", "*"), File::FNM_DOTMATCH).sort.each do |path|
+        next unless File.file?(path)
+
+        relative_asset_path = path.delete_prefix("#{root}/")
+        next if relative_asset_path.split("/").any? { |part| part.start_with?(".") }
+        next if MARKDOWN_EXTENSIONS.include?(File.extname(path).downcase)
+        next if ObsidianPostIgnore.ignored?(site, path)
+
+        relative_to_source = path.delete_prefix("#{site.source}/")
+        dir = File.dirname(relative_to_source)
+        name = File.basename(path)
+        url = File.join("/", URL_ROOT, relative_asset_path)
+        site.static_files << ObsidianVaultAssetFile.new(site, site.source, dir, name, url)
+      end
     end
   end
 
@@ -81,10 +164,32 @@ module Jekyll
       end
     end
   end
+
+  # `_posts/index.md` is the single homepage source. Promote it to a normal
+  # Jekyll page before rendering so it owns `/` without being listed as a post
+  # in archives, feeds, search results, or the knowledge graph.
+  class ObsidianHomepageGenerator < Generator
+    safe true
+    priority :highest
+
+    def generate(site)
+      homepage = site.posts.docs.find { |doc| doc.data["homepage"] }
+      return unless homepage
+
+      page = PageWithoutAFile.new(site, site.source, "", "index.md")
+      page.content = homepage.content
+      page.data.merge!(homepage.data)
+      page.data["permalink"] = "/"
+
+      site.pages << page
+      site.posts.docs.delete(homepage)
+    end
+  end
 end
 
 Jekyll::Hooks.register :site, :post_read do |site|
   Jekyll::ObsidianPostAssets.register_static_files(site)
+  Jekyll::ObsidianVaultAssets.register_static_files(site)
 end
 
 Jekyll::Hooks.register :documents, :post_render do |doc|
@@ -92,4 +197,3 @@ Jekyll::Hooks.register :documents, :post_render do |doc|
 
   Jekyll::ObsidianPostAssets.rewrite_image_urls(doc)
 end
-

@@ -1,0 +1,23 @@
+<aside class="sidebar sidebar--left" data-left-sidebar>
+  <a class="sidebar-brand" href="{{ '/' | relative_url }}" aria-label="{{ site.title }} 首页">
+    <span class="sidebar-brand__mark">开</span>
+    <span>{{ site.title }}</span>
+  </a>
+
+  <div class="sidebar-actions">
+    <button class="sidebar-search" type="button" data-search-open>
+      <span aria-hidden="true">⌕</span><span>搜索</span><kbd>⌘ K</kbd>
+    </button>
+    <button class="icon-button" type="button" data-theme-toggle aria-label="切换明暗模式">◐</button>
+    <button class="icon-button" type="button" data-reader-toggle aria-label="阅读模式">▣</button>
+  </div>
+
+  <section class="explorer" data-explorer>
+    <button class="explorer__title" type="button" data-explorer-toggle aria-expanded="true">
+      <span>探索</span><span class="explorer__chevron">⌄</span>
+    </button>
+    <div class="explorer__tree" data-explorer-tree aria-live="polite">
+      <span class="sidebar-loading">正在整理知识库…</span>
+    </div>
+  </section>
+</aside>

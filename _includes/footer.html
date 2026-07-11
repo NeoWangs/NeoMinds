@@ -1,5 +1,5 @@
 <footer class="site-footer">
-  <span>{{ site.title }}</span>
-  <span>Powered by Jekyll and Markdown.</span>
+  <span>© {{ site.time | date: '%Y' }} {{ site.title }}</span>
+  <span>由 Markdown 和持续好奇驱动</span>
+  <a href="{{ '/atom.xml' | relative_url }}">RSS</a>
 </footer>
-

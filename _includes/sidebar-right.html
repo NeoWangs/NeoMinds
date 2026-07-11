@@ -1,0 +1,31 @@
+{% assign current_backlinks = site.data.obsidian_graph.backlinks[page.slug] %}
+<aside class="sidebar sidebar--right">
+  <section class="side-panel side-panel--graph">
+    <div class="side-panel__header">
+      <h2>关系图谱</h2>
+      <button class="graph-open" type="button" data-graph-open aria-label="打开全局关系图谱">⌘</button>
+    </div>
+    <div class="knowledge-graph" data-knowledge-graph data-current-slug="{{ page.slug | default: '' }}" aria-label="当前笔记关系图"></div>
+    <p class="graph-data-status" data-knowledge-graph-status aria-live="polite"></p>
+  </section>
+
+  {% if page.layout == 'post' %}
+  <section class="side-panel side-panel--toc" data-article-toc>
+    <div class="side-panel__header"><h2>目录 <span data-toc-status aria-live="polite"></span></h2></div>
+    <nav class="toc-links" data-article-toc-links aria-label="本文目录"></nav>
+  </section>
+
+  <section class="side-panel side-panel--backlinks">
+    <div class="side-panel__header"><h2>反向链接{% if current_backlinks and current_backlinks.size > 0 %}<span>{{ current_backlinks.size }}</span>{% endif %}</h2></div>
+    {% if current_backlinks and current_backlinks.size > 0 %}
+    <ul class="backlink-list">
+      {% for backlink in current_backlinks limit: 12 %}
+      <li><a href="{{ backlink.url | relative_url }}">{{ backlink.title }}<small>{{ backlink.category }}</small></a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="panel-empty">暂时没有其他笔记链接到这里。</p>
+    {% endif %}
+  </section>
+  {% endif %}
+</aside>

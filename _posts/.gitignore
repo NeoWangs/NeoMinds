@@ -1,0 +1,7 @@
+# Directories listed here are both private to Git and excluded from the site.
+# Use exact paths relative to _posts, with a leading slash. A trailing slash is optional.
+# Examples:
+# /private/
+# /AI/drafts/
+
+/Neo

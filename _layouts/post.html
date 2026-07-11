@@ -1,39 +1,37 @@
 ---
 layout: default
 ---
-<main class="page">
+<main class="page page--article">
+  {% assign first_category = page.category | default: page.categories[0] %}
+  {% assign source_parts = page.source_path | split: '/' %}
+  {% assign reading_time = site.data.obsidian_graph.reading_time[page.slug] | default: page.reading_time | default: 1 %}
   <article class="post">
-    <a class="post__back" href="{{ '/archive/' | relative_url }}">Archive</a>
-    <h1>{{ page.title }}</h1>
-    <div class="post__meta">
-      <span>{{ page.date | date: '%Y.%m.%d' }}</span>
-      {% assign first_category = page.category | default: page.categories[0] %}
-      {% if first_category %}
-      <a href="{{ '/categories/' | append: first_category | append: '/' | relative_url }}">{{ first_category }}</a>
+    <header class="article-header">
+      <nav class="breadcrumbs" aria-label="面包屑导航">
+        <a href="{{ '/' | relative_url }}">主页</a>
+        {% if first_category %}<span>›</span><a href="{{ '/categories/' | append: first_category | append: '/' | relative_url }}">{{ first_category }}</a>{% endif %}
+        {% if source_parts.size > 2 %}<span>›</span><span>{{ source_parts[1] }}</span>{% endif %}
+      </nav>
+      <h1>{{ page.title }}</h1>
+      <p class="content-meta"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y年%m月%d日' }}</time><span>{{ reading_time }} 分钟阅读</span></p>
+      {% if page.source_url %}
+      {% assign source_host = page.source_url | remove: 'https://' | remove: 'http://' | split: '/' | first %}
+      {% assign source_name = page.source | default: source_host %}
+      <p class="article-source">来源：<a href="{{ page.source_url }}" target="_blank" rel="noopener">{{ source_name }} <span>查看原文 ↗</span></a></p>
       {% endif %}
-      {% for tag in page.tags %}
-      {% assign tag_path = tag | strip | replace: '/', '-' %}
-      <a href="{{ '/tags/' | append: tag_path | append: '/' | relative_url }}">#{{ tag }}</a>
-      {% endfor %}
-    </div>
-    <div class="post-content">
-      {{ content }}
-    </div>
+      {% if page.tags and page.tags.size > 0 %}
+      <ul class="tag-list">
+        {% for tag in page.tags %}{% assign tag_path = tag | strip | replace: '/', '-' %}<li><a href="{{ '/tags/' | append: tag_path | append: '/' | relative_url }}">{{ tag }}</a></li>{% endfor %}
+      </ul>
+      {% endif %}
+    </header>
+
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    <div class="post-content" data-post-content>{{ content }}</div>
   </article>
 
-  <nav class="post-nav" aria-label="Post navigation">
-    {% if page.previous %}
-    <a href="{{ page.previous.url | relative_url }}">
-      <small>Previous</small>
-      <span>{{ page.previous.title }}</span>
-    </a>
-    {% endif %}
-    {% if page.next %}
-    <a href="{{ page.next.url | relative_url }}">
-      <small>Next</small>
-      <span>{{ page.next.title }}</span>
-    </a>
-    {% endif %}
+  <nav class="post-nav" aria-label="阅读导航">
+    {% if page.previous %}<a href="{{ page.previous.url | relative_url }}"><small>上一篇</small><span>{{ page.previous.title }}</span></a>{% endif %}
+    {% if page.next %}<a href="{{ page.next.url | relative_url }}"><small>下一篇</small><span>{{ page.next.title }}</span></a>{% endif %}
   </nav>
 </main>
-

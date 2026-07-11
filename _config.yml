@@ -1,15 +1,17 @@
-title: Obsidian Jekyll Starter
-description: An Obsidian-first Jekyll blog starter.
-author: Your Name
-lang: en
-timezone: UTC
-url: ""
+title: 开过头先生的数字花园
+description: 把读过的、想过的、验证过的东西，慢慢沉淀下来。
+author: 开过头先生
+lang: zh-CN
+timezone: Asia/Shanghai
+url: "https://www.neoxmind.com"
 baseurl: ""
 
 permalink: /:year/:month/:day/:slug/
 future: true
 markdown: kramdown
 highlighter: rouge
+slugify_mode: raw
+slugify_cased: true
 
 plugins:
   - jekyll-feed
@@ -36,11 +38,76 @@ exclude:
 obsidian_jekyll:
   default_theme: light
   mathjax: true
+  groups:
+    - name: "技术与计算"
+      eyebrow: "01 / Make & Understand"
+      description: "模型、代码、系统与构建世界的工具。"
+    - name: "商业与世界"
+      eyebrow: "02 / Markets & Ideas"
+      description: "市场、历史、组织与理解复杂世界的框架。"
+    - name: "人文与生活"
+      eyebrow: "03 / A Life Well Lived"
+      description: "人、审美、身体与日常生活里值得记住的事。"
   categories:
-    - name: notes
-      title: Notes
-      description: Essays, thoughts, and evergreen notes.
-    - name: lab
-      title: Lab
-      description: Experiments, demos, and working notes.
-
+    - name: AI
+      title: AI 与智能
+      short_title: AI
+      group: 技术与计算
+      description: LLM、Agent、模型进展、方法与应用。
+    - name: IT
+      title: IT 与工具
+      short_title: IT
+      group: 技术与计算
+      description: 编程、数据、工具与科技行业观察。
+    - name: 架构
+      title: 架构
+      group: 技术与计算
+      description: 系统设计、工程方法与架构思维。
+    - name: 数学
+      title: 数学
+      group: 技术与计算
+      description: 概率、密码学与关于世界的形式化思考。
+    - name: System
+      title: 系统
+      group: 技术与计算
+      description: 工作流、知识系统与长期主义的工具箱。
+    - name: 金融
+      title: 金融
+      group: 商业与世界
+      description: 宏观、市场、交易与金融学习。
+    - name: 商业
+      title: 商业
+      group: 商业与世界
+      description: 公司、战略、产业与商业观察。
+    - name: 历史
+      title: 历史
+      group: 商业与世界
+      description: 大事年表、地缘政治与长时段的变化。
+    - name: 政治
+      title: 政治
+      group: 商业与世界
+      description: 观念、制度与公共生活。
+    - name: 管理
+      title: 管理
+      group: 商业与世界
+      description: 组织、领导力与协作方法。
+    - name: 思维
+      title: 思维
+      group: 商业与世界
+      description: 模型、判断与更好的问题。
+    - name: 人文
+      title: 人文
+      group: 人文与生活
+      description: 文学、艺术、哲学与社会观察。
+    - name: 生活
+      title: 生活
+      group: 人文与生活
+      description: 旅行、摄影、健康与日常实践。
+    - name: 情感
+      title: 情感
+      group: 人文与生活
+      description: 关系、教育与人如何彼此靠近。
+    - name: Neo
+      title: Neo 的文章库
+      group: 人文与生活
+      description: 阅读、摘录与正在发生的新想法。

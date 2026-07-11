@@ -2,40 +2,10 @@
 layout: default
 ---
 <main class="page page--home">
-  <section class="home-hero">
-    <p class="eyebrow">Obsidian-first Jekyll</p>
-    <h1>{{ site.title }}</h1>
-    <p>{{ site.description }}</p>
-  </section>
+  <header class="article-header article-header--home">
+    <p class="breadcrumbs">主页</p>
+    <h1>{{ page.title }}</h1>
+  </header>
 
-  <section class="section">
-    <div class="section__head">
-      <h2>Recent Posts</h2>
-      <a href="{{ '/archive/' | relative_url }}">View archive</a>
-    </div>
-    <div class="post-list">
-      {% for post in site.posts limit: 6 %}
-      <a class="post-row" href="{{ post.url | relative_url }}">
-        <span class="post-row__date">{{ post.date | date: '%Y.%m.%d' }}</span>
-        <span class="post-row__title">{{ post.title }}</span>
-        <span class="post-row__meta">{% if post.tags and post.tags.size > 0 %}#{{ post.tags[0] }}{% endif %}</span>
-      </a>
-      {% endfor %}
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section__head">
-      <h2>Categories</h2>
-    </div>
-    <div class="category-grid">
-      {% for category in site.obsidian_jekyll.categories %}
-      <a class="category-card" href="{{ '/categories/' | append: category.name | append: '/' | relative_url }}">
-        <span>{{ category.title | default: category.name }}</span>
-        <small>{{ category.description }}</small>
-      </a>
-      {% endfor %}
-    </div>
-  </section>
+  <article class="post-content home-content" data-post-content>{{ content }}</article>
 </main>
-

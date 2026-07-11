@@ -1,0 +1,10 @@
+---
+layout: null
+permalink: /explorer.json
+---
+[
+{% assign ordered_posts = site.posts | sort: 'source_path' %}
+{% for post in ordered_posts %}
+  {"title": {{ post.title | jsonify }}, "url": {{ post.url | relative_url | jsonify }}, "path": {{ post.source_path | jsonify }}, "slug": {{ post.slug | jsonify }}}{% unless forloop.last %},{% endunless %}
+{% endfor %}
+]

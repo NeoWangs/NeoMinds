@@ -3,8 +3,11 @@ _site/
 .sass-cache/
 vendor/
 .bundle/
+.playwright-cli/
+__pycache__/
+*.pyc
 .DS_Store
 *.gem
+/assets/obsidian/
 /_posts/.obsidian/workspace.json
 /_posts/.obsidian/workspace-mobile.json
-

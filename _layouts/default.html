@@ -3,11 +3,22 @@
 <head>
 {% include head.html %}
 </head>
-<body>
+<body data-search-index="{{ '/search.json' | relative_url }}" data-explorer-index="{{ '/explorer.json' | relative_url }}" data-graph-index="{{ '/graph.json' | relative_url }}">
 {% include header.html %}
-{{ content }}
-{% include footer.html %}
-<script src="{{ '/assets/js/site.js' | relative_url }}"></script>
+<button class="reader-exit" type="button" data-reader-toggle aria-pressed="false" aria-label="退出阅读模式">
+  <span aria-hidden="true">‹</span> 返回导航
+</button>
+<div class="quartz-shell">
+  {% include sidebar-left.html %}
+  <div class="content-column">
+    {{ content }}
+    {% include footer.html %}
+  </div>
+  {% include sidebar-right.html %}
+</div>
+{% include search.html %}
+{% include graph-dialog.html %}
+<script src="{{ '/assets/js/cytoscape.min.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/assets/js/site.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 </body>
 </html>
-

@@ -1,0 +1,5 @@
+---
+layout: null
+permalink: /graph.json
+---
+{{ site.data.obsidian_graph.nodes | jsonify }}
