@@ -6,6 +6,7 @@ require "optparse"
 require "yaml"
 
 ROOT = File.expand_path("..", __dir__)
+CONTENT_ROOT = "MyMind"
 SLUG_PATTERN = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/.freeze
 
 # Shells that report a non-UTF-8 locale hand over ARGV as ASCII-8BIT, which
@@ -18,7 +19,7 @@ def usage
 
     Commands:
       new-post <slug> [--title TITLE] [--category NAME]
-          Create _posts/<category>/<slug>.md and its asset directory.
+          Create MyMind/<category>/<slug>.md and its asset directory.
   TEXT
 end
 
@@ -50,7 +51,7 @@ def new_post(argv)
     abort("Invalid category #{category.inspect}: use a single folder name without slashes.")
   end
 
-  post_dir = File.join(ROOT, "_posts", category)
+  post_dir = File.join(ROOT, CONTENT_ROOT, category)
   post_path = File.join(post_dir, "#{slug}.md")
   abort("#{relative(post_path)} already exists.") if File.exist?(post_path)
 

@@ -9,5 +9,4 @@ __pycache__/
 .DS_Store
 *.gem
 /assets/obsidian/
-/_posts/.obsidian/workspace.json
-/_posts/.obsidian/workspace-mobile.json
+/MyMind/.obsidian/

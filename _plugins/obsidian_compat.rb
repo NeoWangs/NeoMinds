@@ -14,7 +14,7 @@ module Jekyll
     IMAGE_SRC_PATTERN = %r{(<img\b[^>]*\bsrc=(["']))([^"']+)(\2)}i.freeze
     CALLOUT_START_PATTERN = /\A>\s*\[!([\w-]+)\][+-]?\s*(.*?)\s*\z/i.freeze
     BLOCKQUOTE_LINE_PATTERN = /\A>\s?(.*)\z/.freeze
-    ASSET_SOURCE_ROOT = "_posts".freeze
+    ASSET_SOURCE_ROOT = "MyMind".freeze
     ASSET_URL_ROOT = "assets/obsidian".freeze
     IMAGE_EXTENSIONS = %w(.apng .avif .gif .jpg .jpeg .png .svg .webp).freeze
 

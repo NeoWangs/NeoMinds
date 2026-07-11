@@ -2,7 +2,7 @@
 
 NeoXMind 是一个个人 Obsidian 数字资源发布平台。
 
-它以 `_posts` 作为 Obsidian vault，把日常积累的文章、笔记、图片、PDF 和其他附件保存在同一套目录中，再通过 Jekyll 与 GitHub Pages 发布为可搜索、可浏览的个人数字花园。
+它以 `MyMind` 作为 Obsidian vault，把日常积累的文章、笔记、图片、PDF 和其他附件保存在同一套目录中，再通过 Jekyll 与 GitHub Pages 发布为可搜索、可浏览的个人数字花园。
 
 ## 功能特点
 
@@ -17,7 +17,7 @@ NeoXMind 是一个个人 Obsidian 数字资源发布平台。
 ## 内容目录
 
 ```text
-_posts/
+MyMind/
 ├── index.md              # 唯一的首页内容源
 ├── AI/                   # 分类目录
 ├── IT/
@@ -30,7 +30,7 @@ _posts/
 文章文件名只保留文章自身标题，分类信息由所在目录表达。例如：
 
 ```text
-_posts/生活/健康/睡了等于没睡-这样睡觉-危害堪比熬夜-内附改善大法.md
+MyMind/生活/健康/睡了等于没睡-这样睡觉-危害堪比熬夜-内附改善大法.md
 ```
 
 ## 本地使用
@@ -47,7 +47,7 @@ bundle exec jekyll serve
 
 ## 写文章
 
-直接用 Obsidian 打开 `_posts` 目录作为 vault，或者使用内置命令创建文章：
+直接用 Obsidian 打开 `MyMind` 目录作为 vault，或者使用内置命令创建文章：
 
 ```sh
 bin/obsidian-jekyll new-post my-first-post \
@@ -58,8 +58,8 @@ bin/obsidian-jekyll new-post my-first-post \
 命令会创建：
 
 ```text
-_posts/思维/my-first-post.md
-_posts/思维/my-first-post/
+MyMind/思维/my-first-post.md
+MyMind/思维/my-first-post/
 ```
 
 文章 front matter 示例：
@@ -82,7 +82,7 @@ tags:
 
 ## 首页
 
-[_posts/index.md](_posts/index.md) 是唯一的首页内容源，会直接渲染到网站根路径 `/`。
+[MyMind/index.md](MyMind/index.md) 是唯一的首页内容源，会直接渲染到网站根路径 `/`。
 
 修改首页时只需编辑这个文件，不需要维护另一份根目录 `index.html`。
 
@@ -91,14 +91,14 @@ tags:
 全局资源可以放在：
 
 ```text
-_posts/_resources/
+MyMind/_resources/
 ```
 
 也可以放在文章或分类旁边：
 
 ```text
-_posts/生活/外语/日语五十音.pdf
-_posts/思维/my-first-post/cover.svg
+MyMind/生活/外语/日语五十音.pdf
+MyMind/思维/my-first-post/cover.svg
 ```
 
 推荐使用 Obsidian 原生嵌入：
@@ -118,7 +118,7 @@ _posts/思维/my-first-post/cover.svg
 
 ## 私有目录
 
-在 [_posts/.gitignore](_posts/.gitignore) 中添加目录规则，即可让目录同时满足：
+在 [MyMind/.gitignore](MyMind/.gitignore) 中添加目录规则，即可让目录同时满足：
 
 - 不被 Git 提交；
 - 不被 Jekyll 渲染；
@@ -138,7 +138,7 @@ _posts/思维/my-first-post/cover.svg
 如果目录以前已经提交过，需要执行一次：
 
 ```sh
-git rm -r --cached _posts/目录路径
+git rm -r --cached MyMind/目录路径
 ```
 
 该命令只会从 Git 索引中移除文件，不会删除本地内容。
@@ -156,10 +156,11 @@ bundle exec jekyll build
 
 - 跳过 Obsidian 配置、Agent 和 Skill 等本地目录；
 - 保留原有目录层级；
-- 将 Markdown 文章整理到 `_posts`；
-- 将图片、PDF 等资源复制到 `_posts` 中的对应位置；
-- 为文章生成稳定的网页 slug；
-- 保留 `_posts/.gitignore` 中的私有目录配置。
+- 将 Markdown 文章整理到 `MyMind`；
+- 将图片、PDF 等资源复制到 `MyMind` 中的对应位置；
+- 直接以文件名生成简洁的网页 slug（不包含目录前缀或哈希后缀）；
+- 检测规范化后的同名文章，避免生成冲突网址；
+- 保留 `MyMind/.gitignore` 中的私有目录配置。
 
 迁移不会修改源 vault。
 
@@ -204,7 +205,7 @@ bundle exec jekyll build
 
 ```text
 .
-├── _posts/                 # Obsidian vault、文章与资源
+├── MyMind/                 # Obsidian vault、文章与资源
 ├── _plugins/               # Obsidian 与 Jekyll 兼容插件
 ├── _layouts/               # 页面布局
 ├── _includes/              # 页面公共组件
@@ -223,4 +224,4 @@ bundle exec jekyll build
 - 分类和分组；
 - MathJax、主题与页面行为。
 
-网站内容以 `_posts` 中的 Obsidian 数据为准，Jekyll 只负责将这套个人知识与数字资源发布到 Web。
+网站内容以 `MyMind` 中的 Obsidian 数据为准，Jekyll 只负责将这套个人知识与数字资源发布到 Web。

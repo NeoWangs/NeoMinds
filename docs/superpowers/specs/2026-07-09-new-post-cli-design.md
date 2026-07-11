@@ -24,8 +24,8 @@ bin/obsidian-jekyll new-post <slug> [--title "标题"] [--category notes]
 
 1. Validate `<slug>`: must match `\A[a-z0-9]+(-[a-z0-9]+)*\z`. Reject otherwise
    with a clear error (exit 1).
-2. Refuse to overwrite: if `_posts/<slug>.md` exists, error and exit 1.
-3. Create `_posts/<slug>.md` with front matter:
+2. Refuse to overwrite: if `MyMind/<slug>.md` exists, error and exit 1.
+3. Create `MyMind/<slug>.md` with front matter:
    - `title`: `--title` value, defaulting to the slug;
    - `date`: current local time formatted `YYYY-MM-DD HH:MM:SS +ZZZZ`;
    - `category` and `categories` (single-item list): `--category` value,
@@ -35,7 +35,7 @@ bin/obsidian-jekyll new-post <slug> [--title "标题"] [--category notes]
      filename and the global permalink pattern).
    - Front matter is emitted via Ruby's YAML library so titles containing
      quotes/colons are escaped correctly.
-4. Create the asset directory `_posts/<slug>/` (empty; used for post images).
+4. Create the asset directory `MyMind/<slug>/` (empty; used for post images).
 5. Print the created file path and asset directory.
 
 ## Error handling

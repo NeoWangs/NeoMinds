@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import hashlib
 import re
 import shutil
 from pathlib import Path
@@ -15,7 +14,7 @@ import yaml
 
 PROJECT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = Path("/Users/neo/workspace/mine/quartz/content")
-POSTS_DIR = PROJECT / "_posts"
+CONTENT_DIR = PROJECT / "MyMind"
 LEGACY_ASSETS_DIR = PROJECT / "assets" / "obsidian"
 SKIP_TOP_LEVEL = {".agents", ".claude", ".obsidian", "skills"}
 SKIP_FILENAMES = {".DS_Store", "skills-lock.json"}
@@ -66,20 +65,13 @@ def title_for(metadata: dict, path: Path) -> str:
     return title or path.stem
 
 
-def readable_name_for(relative: Path) -> str:
-    readable = re.sub(r"[^\w\u4e00-\u9fff-]+", "-", relative.with_suffix("").as_posix().replace("/", "-"), flags=re.UNICODE)
-    return re.sub(r"-+", "-", readable).strip("-_") or "note"
-
-
 def filename_for(relative: Path) -> str:
     readable = re.sub(r"[^\w\u4e00-\u9fff-]+", "-", relative.stem, flags=re.UNICODE)
     return re.sub(r"-+", "-", readable).strip("-_") or "note"
 
 
 def slug_for(relative: Path) -> str:
-    readable = readable_name_for(relative)
-    digest = hashlib.sha1(relative.as_posix().encode("utf-8")).hexdigest()[:7]
-    return f"{readable}-{digest}"
+    return filename_for(relative)
 
 
 def output_relative_path(relative: Path) -> Path:
@@ -136,9 +128,9 @@ def write_post(source: Path, relative: Path) -> None:
     text = source.read_text(encoding="utf-8")
     metadata, body = split_front_matter(text)
     data = post_metadata(metadata, source, relative)
-    # Keep the vault hierarchy browsable under _posts while using readable
-    # filenames. The stable hashed slug remains in front matter for URLs.
-    output_path = POSTS_DIR / output_relative_path(relative)
+    # Keep the vault hierarchy browsable under MyMind while using the source
+    # filename as the readable URL slug.
+    output_path = CONTENT_DIR / output_relative_path(relative)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     front_matter = yaml.safe_dump(data, allow_unicode=True, sort_keys=False, default_flow_style=False).strip()
     output_path.write_text(f"---\n{front_matter}\n---\n\n{body.lstrip()}", encoding="utf-8")
@@ -152,7 +144,7 @@ def copy_assets(source_root: Path) -> int:
         relative = source.relative_to(source_root)
         if should_skip(relative) or source.suffix.lower() in MARKDOWN_SUFFIXES or source.name in SKIP_FILENAMES:
             continue
-        target = POSTS_DIR / relative
+        target = CONTENT_DIR / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
         copied += 1
@@ -165,12 +157,12 @@ def main() -> None:
     if not source_root.is_dir():
         raise SystemExit(f"Source vault not found: {source_root}")
 
-    post_ignore = POSTS_DIR / ".gitignore"
+    post_ignore = CONTENT_DIR / ".gitignore"
     post_ignore_content = post_ignore.read_bytes() if post_ignore.is_file() else None
     if args.clean:
-        shutil.rmtree(POSTS_DIR, ignore_errors=True)
+        shutil.rmtree(CONTENT_DIR, ignore_errors=True)
         shutil.rmtree(LEGACY_ASSETS_DIR, ignore_errors=True)
-    POSTS_DIR.mkdir(parents=True, exist_ok=True)
+    CONTENT_DIR.mkdir(parents=True, exist_ok=True)
     if post_ignore_content is not None:
         post_ignore.write_bytes(post_ignore_content)
 
@@ -185,6 +177,7 @@ def main() -> None:
 
     sorted_notes = sorted(notes, key=lambda item: item[1].as_posix().casefold())
     output_paths: dict[Path, Path] = {}
+    output_slugs: dict[str, Path] = {}
     for _, relative in sorted_notes:
         target = output_relative_path(relative)
         previous = output_paths.get(target)
@@ -195,10 +188,19 @@ def main() -> None:
             )
         output_paths[target] = relative
 
+        slug = slug_for(relative)
+        previous_slug = output_slugs.get(slug)
+        if previous_slug is not None:
+            raise SystemExit(
+                "Slug collision after normalization: "
+                f"{previous_slug.as_posix()} and {relative.as_posix()} -> {slug}"
+            )
+        output_slugs[slug] = relative
+
     for source, relative in sorted_notes:
         write_post(source, relative)
     copied_assets = copy_assets(source_root)
-    print(f"Imported {len(notes)} notes and copied {copied_assets} vault resources into _posts.")
+    print(f"Imported {len(notes)} notes and copied {copied_assets} vault resources into MyMind.")
 
 
 if __name__ == "__main__":

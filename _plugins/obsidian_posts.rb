@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-# Let files under _posts omit Jekyll's usual YYYY-MM-DD filename prefix.
+# Let files under MyMind omit Jekyll's usual YYYY-MM-DD filename prefix.
 # Each post still needs a date in front matter.
 module Jekyll
   OBSIDIAN_POST_FILENAME_MATCHER = %r!^(?:.+/)*(.*)(\.(?:md|markdown|mkd|mkdn|mdown))$!i.freeze
 
   module ObsidianPostIgnore
-    CONFIG_PATH = File.join("_posts", ".gitignore").freeze
+    CONTENT_ROOT = "MyMind".freeze
+    CONFIG_PATH = File.join(CONTENT_ROOT, ".gitignore").freeze
     DIRECTORY_PATTERN = %r{\A/([^*?!\[\]]+)/?\z}.freeze
 
     module_function
@@ -16,8 +17,8 @@ module Jekyll
     end
 
     def ignored?(site, path)
-      posts_root = File.expand_path(site.in_source_dir("_posts"))
-      relative = File.expand_path(path).delete_prefix("#{posts_root}/")
+      content_root = File.expand_path(site.in_source_dir(CONTENT_ROOT))
+      relative = File.expand_path(path).delete_prefix("#{content_root}/")
       directories(site).any? do |directory|
         relative == directory || relative.start_with?("#{directory}/")
       end
@@ -37,7 +38,7 @@ module Jekyll
           next
         end
 
-        directory = match[1].sub(%r{\A_posts/}, "").sub(%r{/\z}, "")
+        directory = match[1].sub(%r{\AMyMind/}, "").sub(%r{/\z}, "")
         parts = directory.split("/")
         next if directory.empty? || parts.any? { |part| part.empty? || part == "." || part == ".." }
 
@@ -48,12 +49,27 @@ module Jekyll
 
   class PostReader
     def read_posts(dir)
-      read_content(dir, "_posts", OBSIDIAN_POST_FILENAME_MATCHER)
+      read_content(dir, ObsidianPostIgnore::CONTENT_ROOT, OBSIDIAN_POST_FILENAME_MATCHER)
         .reject { |doc| ObsidianPostIgnore.ignored?(site, doc.path) }
         .tap { |docs| docs.each(&:read) }
         .select { |doc| processable?(doc) }
     end
   end
+
+  # MyMind is a normal directory name, so Jekyll would otherwise traverse it
+  # again as pages and static files after PostReader has loaded its articles.
+  # Keep that directory on the dedicated Obsidian content pipeline only.
+  module ObsidianContentDirectory
+    def retrieve_dirs(base, dir, directories)
+      content_root = Jekyll::ObsidianPostIgnore::CONTENT_ROOT
+      filtered = directories.reject do |entry|
+        Jekyll::PathManager.join(dir, entry).sub(%r{\A/}, "") == content_root
+      end
+      super(base, dir, filtered)
+    end
+  end
+
+  Reader.prepend(ObsidianContentDirectory)
 
   class ObsidianPostAssetFile < StaticFile
     def initialize(site, base, dir, name, post_asset_url)
@@ -78,7 +94,7 @@ module Jekyll
   end
 
   module ObsidianVaultAssets
-    SOURCE_ROOT = "_posts".freeze
+    SOURCE_ROOT = ObsidianPostIgnore::CONTENT_ROOT
     URL_ROOT = "assets/obsidian".freeze
     MARKDOWN_EXTENSIONS = %w(.md .markdown .mkd .mkdn .mdown).freeze
 
@@ -165,7 +181,7 @@ module Jekyll
     end
   end
 
-  # `_posts/index.md` is the single homepage source. Promote it to a normal
+  # `MyMind/index.md` is the single homepage source. Promote it to a normal
   # Jekyll page before rendering so it owns `/` without being listed as a post
   # in archives, feeds, search results, or the knowledge graph.
   class ObsidianHomepageGenerator < Generator
