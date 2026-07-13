@@ -3,7 +3,7 @@
 <head>
 {% include head.html %}
 </head>
-<body data-site-version="{{ site.time | date: '%s' }}" data-search-index="{{ '/search.json' | relative_url }}" data-explorer-index="{{ '/explorer.json' | relative_url }}" data-graph-index="{{ '/graph.json' | relative_url }}" data-current-slug="{{ page.slug | default: '' | escape }}" data-current-url="{{ page.url | relative_url | escape }}">
+<body class="layout-{{ page.layout | default: 'default' }}" data-site-version="{{ site.time | date: '%s' }}" data-search-index="{{ '/search.json' | relative_url }}" data-explorer-index="{{ '/explorer.json' | relative_url }}" data-graph-index="{{ '/graph.json' | relative_url }}" data-current-slug="{{ page.slug | default: '' | escape }}" data-current-url="{{ page.url | relative_url | escape }}">
 {% include header.html %}
 <button class="reader-exit" type="button" data-reader-toggle aria-pressed="false" aria-label="退出阅读模式">
   <span aria-hidden="true">‹</span> 返回导航

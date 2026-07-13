@@ -40,10 +40,18 @@
     body.style.overflow = locked ? "hidden" : "";
   }
 
+  function syncThemeControls() {
+    var dark = root.getAttribute("data-theme") === "dark";
+    document.querySelectorAll("[data-theme-label]").forEach(function (label) {
+      label.textContent = dark ? "白天" : "深夜";
+    });
+  }
+
   function toggleTheme() {
     var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     root.setAttribute("data-theme", next);
     try { localStorage.setItem("oj-theme", next); } catch (error) {}
+    syncThemeControls();
     window.setTimeout(refreshGraphs, 0);
   }
 
@@ -416,6 +424,11 @@
     return "#" + (text.length > limit ? text.slice(0, limit) + "…" : text);
   }
 
+  function tagUrl(tag) {
+    var path = String(tag || "").trim().replace(/\//g, "-");
+    return "/tags/" + encodeURIComponent(path) + "/";
+  }
+
   function graphSeedPosition(index) {
     var angle = index * 2.3999632297;
     var radius = 34 * Math.sqrt(index + 1);
@@ -486,6 +499,7 @@
           id: tag.id,
           label: tagLabel(tag.tag, full),
           title: "#" + tag.tag,
+          url: tagUrl(tag.tag),
           kind: "tag",
           count: tag.count,
           isCenter: false
@@ -612,6 +626,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     var searchInput = document.querySelector("[data-search-input]");
     try { if (localStorage.getItem("oj-reader") === "on") setReaderMode(true, false); } catch (error) {}
+    syncThemeControls();
     document.querySelectorAll("[data-theme-toggle]").forEach(function (button) { button.addEventListener("click", toggleTheme); });
     document.querySelectorAll("[data-reader-toggle]").forEach(function (button) { button.addEventListener("click", toggleReader); });
     document.querySelectorAll("[data-search-open]").forEach(function (button) { button.addEventListener("click", openSearch); });
