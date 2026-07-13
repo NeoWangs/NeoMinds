@@ -2,6 +2,7 @@ _site/
 .jekyll-cache/
 .sass-cache/
 vendor/
+node_modules/
 .bundle/
 .playwright-cli/
 __pycache__/

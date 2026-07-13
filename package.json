@@ -1,0 +1,15 @@
+{
+  "name": "neoxmind",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:graph",
+    "build:graph": "node scripts/build_graph_bundle.mjs"
+  },
+  "dependencies": {
+    "d3-force": "^3.0.0",
+    "pixi.js": "^8.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.6"
+  }
+}

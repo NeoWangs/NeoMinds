@@ -45,6 +45,13 @@ bundle exec jekyll serve
 
 访问终端输出的本地地址即可预览。只使用 GitHub Pages 发布时，可以不安装本地 Ruby 环境。
 
+知识图谱使用 [PixiJS](https://pixijs.com/) 渲染、[d3-force](https://d3js.org/d3-force) 计算力导向布局，浏览器 bundle 已提交到仓库。修改 `_javascript/knowledge-graph.js` 后需要用 Node.js 重新构建：
+
+```sh
+npm install
+npm run build:graph
+```
+
 ## 写文章
 
 直接用 Obsidian 打开 `MyMind` 目录作为 vault，或者使用内置命令创建文章：

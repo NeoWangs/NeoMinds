@@ -382,13 +382,13 @@
       var related = [current].concat((current.links || []).map(function (id) { return byId[id]; }).filter(Boolean), incoming);
       var unique = [];
       related.forEach(function (node) { if (node && unique.indexOf(node) === -1) unique.push(node); });
-      return unique.slice(0, 28);
+      return unique.slice(0, 12);
     }
     return data.slice().sort(function (left, right) {
       var leftDegree = (left.links || []).length + data.filter(function (node) { return (node.links || []).indexOf(left.id) !== -1; }).length;
       var rightDegree = (right.links || []).length + data.filter(function (node) { return (node.links || []).indexOf(right.id) !== -1; }).length;
       return rightDegree - leftDegree;
-    }).slice(0, 22);
+    }).slice(0, 10);
   }
 
   function graphTheme() {
@@ -399,16 +399,9 @@
       line: style.getPropertyValue("--line-strong").trim(),
       surface: style.getPropertyValue("--surface").trim(),
       text: style.getPropertyValue("--text").trim(),
-      muted: style.getPropertyValue("--muted").trim()
+      muted: style.getPropertyValue("--muted").trim(),
+      sans: style.getPropertyValue("--sans").trim()
     };
-  }
-
-  function graphCategoryColors(nodes) {
-    var palette = ["#436b58", "#577aa5", "#9b6a54", "#7d6aa7", "#9b8450", "#4e8a8a", "#a35f76", "#66855b"];
-    var categories = Array.from(new Set(nodes.map(function (node) { return node.category || "其他"; }))).sort();
-    var colors = {};
-    categories.forEach(function (category, index) { colors[category] = palette[index % palette.length]; });
-    return colors;
   }
 
   function graphLabel(title, full) {
@@ -423,26 +416,48 @@
     return "#" + (text.length > limit ? text.slice(0, limit) + "…" : text);
   }
 
+  function graphSeedPosition(index) {
+    var angle = index * 2.3999632297;
+    var radius = 34 * Math.sqrt(index + 1);
+    return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+  }
+
   function graphElements(nodes, currentId, full) {
     var included = new Set(nodes.map(function (node) { return node.id; }));
-    var colors = graphCategoryColors(nodes);
     var tagCounts = graphTagCounts(nodes);
     var current = nodes.find(function (node) { return node.id === currentId; });
     var currentTags = new Set((current && current.tags) || []);
+    var visibleTags = Object.keys(tagCounts).filter(function (tag) {
+      return full ? tagCounts[tag] >= 2 : (currentTags.has(tag) || tagCounts[tag] >= 2);
+    });
+    if (!full) {
+      visibleTags.sort(function (left, right) {
+        var currentDifference = Number(currentTags.has(right)) - Number(currentTags.has(left));
+        return currentDifference || tagCounts[right] - tagCounts[left] || left.localeCompare(right, "zh-Hans-CN");
+      });
+      visibleTags = visibleTags.slice(0, 8);
+    }
+    var visibleTagSet = new Set(visibleTags);
     var tagNodes = {};
     var noteEdgeCount = 0;
     var tagEdgeCount = 0;
-    var tagEdges = [];
-    var elements = nodes.map(function (node) {
+    var edges = [];
+    var center = current || nodes.slice().sort(function (left, right) {
+      var leftDegree = (left.links || []).filter(function (id) { return included.has(id); }).length;
+      var rightDegree = (right.links || []).filter(function (id) { return included.has(id); }).length;
+      return rightDegree - leftDegree;
+    })[0];
+    var graphNodes = nodes.map(function (node, index) {
       return {
+        position: graphSeedPosition(index),
         data: {
           id: node.id,
           label: graphLabel(node.title, full),
           title: node.title,
           url: node.url,
-          color: colors[node.category || "其他"],
           kind: "note",
-          current: node.id === currentId ? "yes" : "no"
+          category: node.category || "其他",
+          isCenter: Boolean(center && node.id === center.id)
         }
       };
     });
@@ -450,42 +465,39 @@
       (node.links || []).forEach(function (targetId) {
         if (!included.has(targetId)) return;
         noteEdgeCount += 1;
-        elements.push({ data: { id: "link:" + node.id + ":" + targetId, source: node.id, target: targetId, relation: "note" } });
+        edges.push({ data: { id: "link:" + node.id + ":" + targetId, source: node.id, target: targetId, relation: "note" } });
       });
       (node.tags || []).forEach(function (tag) {
         // In the global view, a tag is useful when it joins two or more
         // displayed notes.  In the local view, always keep the current
         // note's own tags so the small graph explains its context.
-        if (full ? tagCounts[tag] < 2 : (!currentTags.has(tag) && tagCounts[tag] < 2)) return;
+        if (!visibleTagSet.has(tag)) return;
         var tagId = "tag:" + encodeURIComponent(tag);
         tagNodes[tagId] = { id: tagId, tag: tag, count: tagCounts[tag] };
         tagEdgeCount += 1;
-        tagEdges.push({ data: { id: "tag-link:" + node.id + ":" + encodeURIComponent(tag), source: node.id, target: tagId, relation: "tag" } });
+        edges.push({ data: { id: "tag-link:" + node.id + ":" + encodeURIComponent(tag), source: node.id, target: tagId, relation: "tag" } });
       });
     });
     Object.keys(tagNodes).sort(function (left, right) { return tagNodes[left].tag.localeCompare(tagNodes[right], "zh-Hans-CN"); }).forEach(function (tagId) {
       var tag = tagNodes[tagId];
-      elements.push({
+      graphNodes.push({
+        position: graphSeedPosition(graphNodes.length),
         data: {
           id: tag.id,
           label: tagLabel(tag.tag, full),
           title: "#" + tag.tag,
           kind: "tag",
           count: tag.count,
-          current: "no"
+          isCenter: false
         }
       });
     });
-    elements = elements.concat(tagEdges);
-    return { elements: elements, tagCount: Object.keys(tagNodes).length, noteEdgeCount: noteEdgeCount, tagEdgeCount: tagEdgeCount };
-  }
-
-  function graphTooltip(target) {
-    var tooltip = document.createElement("span");
-    tooltip.className = "graph-tooltip";
-    tooltip.hidden = true;
-    target.appendChild(tooltip);
-    return tooltip;
+    return {
+      graphData: { nodes: graphNodes, edges: edges },
+      tagCount: Object.keys(tagNodes).length,
+      noteEdgeCount: noteEdgeCount,
+      tagEdgeCount: tagEdgeCount
+    };
   }
 
   function renderGraphSummary(target, nodes, graph, full) {
@@ -513,7 +525,7 @@
 
   function drawGraph(target, full) {
     if (!target || !graphData) return;
-    if (target._cytoscape) target._cytoscape.destroy();
+    if (window.NeoXMindGraph) window.NeoXMindGraph.destroy(target);
     target.replaceChildren();
     var currentId = target.getAttribute("data-current-slug") || body.getAttribute("data-current-slug") || "";
     var nodes = pickGraphNodes(graphData, currentId, full);
@@ -523,12 +535,12 @@
       target.setAttribute("aria-label", "所有笔记关系图，展示 " + nodes.length + " 篇笔记、" + graph.tagCount + " 个标签、" + graph.noteEdgeCount + " 条笔记关联和 " + graph.tagEdgeCount + " 条标签关联");
       if (status) {
         var hiddenCount = graphData.length - nodes.length;
-        status.textContent = "展示 " + nodes.length + " 篇笔记、" + graph.tagCount + " 个共享标签、" + graph.noteEdgeCount + " 条双链、" + graph.tagEdgeCount + " 条标签关联" + (hiddenCount ? "；已收起 " + hiddenCount + " 篇未关联笔记" : "") + "。圆点是笔记，方形是标签；已聚焦核心网络，点“适配视图”查看全貌。";
+        status.textContent = "展示 " + nodes.length + " 篇笔记、" + graph.tagCount + " 个共享标签、" + graph.noteEdgeCount + " 条双链、" + graph.tagEdgeCount + " 条标签关联" + (hiddenCount ? "；已收起 " + hiddenCount + " 篇未关联笔记" : "") + "。力导向布局按双链与标签关系展开；悬浮可聚焦一跳关系，点“适配视图”查看全貌。";
       }
     } else if (status) {
       status.textContent = nodes.length + " 篇相关笔记 · " + graph.tagCount + " 个关联标签";
     }
-    if (typeof window.cytoscape !== "function") {
+    if (!window.NeoXMindGraph || typeof window.NeoXMindGraph.render !== "function") {
       renderGraphSummary(target, nodes, graph, full);
       return;
     }
@@ -539,42 +551,10 @@
       target.appendChild(empty);
       return;
     }
-    var theme = graphTheme();
-    var tooltip = graphTooltip(target);
-    var cy = window.cytoscape({
-      container: target,
-      elements: graph.elements,
-      minZoom: full ? 0.14 : 0.55,
-      maxZoom: 3.4,
-      boxSelectionEnabled: false,
-      style: [
-        { selector: "node", style: { "background-color": "data(color)", label: "data(label)", color: theme.text, "font-family": '"Noto Sans SC", "PingFang SC", sans-serif', "font-size": full ? 9 : 10, "text-wrap": "wrap", "text-max-width": full ? 108 : 94, "text-outline-width": 2, "text-outline-color": theme.surface, "text-background-color": theme.surface, "text-background-opacity": full ? 0.82 : 0, "text-background-padding": full ? 1 : 0, "text-valign": "bottom", "text-margin-y": 5, width: full ? 10 : 14, height: full ? 10 : 14, "border-width": 1.5, "border-color": theme.surface } },
-        { selector: "node[kind = 'tag']", style: { "background-color": theme.accent, shape: "round-rectangle", width: full ? 66 : 78, height: full ? 18 : 20, "font-size": full ? 8 : 9, "text-valign": "center", "text-margin-y": 0, "text-background-opacity": 0, "border-width": 1, "border-color": theme.surface } },
-        { selector: "node[current = 'yes']", style: { "background-color": theme.accent, width: full ? 16 : 21, height: full ? 16 : 21, "border-width": 3, "border-color": theme.graph } },
-        { selector: "edge", style: { width: 1.15, "line-color": theme.line, "target-arrow-color": theme.line, "target-arrow-shape": "triangle", "arrow-scale": 0.55, "curve-style": "bezier", opacity: 0.72 } },
-        { selector: "edge[relation = 'tag']", style: { width: 0.9, "line-style": "dashed", "line-color": theme.accent, "target-arrow-shape": "none", opacity: 0.52 } }
-      ],
-      layout: { name: "cose", animate: !full, animationDuration: 420, fit: true, padding: full ? 35 : 18, nodeRepulsion: function () { return full ? 5800 : 5200; }, idealEdgeLength: function () { return full ? 70 : 65; }, gravity: 0.34, numIter: full ? 1500 : 700, randomize: true }
-    });
-    target._cytoscape = cy;
-    if (full) {
-      window.requestAnimationFrame(function () {
-        cy.zoom(Math.min(cy.zoom() * 1.65, 1));
-        cy.center();
-      });
-    }
-    cy.on("mouseover", "node", function (event) {
-      var node = event.target;
-      var point = node.renderedPosition();
-      tooltip.textContent = node.data("kind") === "tag" ? node.data("title") + " · " + node.data("count") + " 篇笔记" : node.data("title") + " · 点击打开";
-      tooltip.style.left = Math.min(Math.max(point.x + 12, 8), target.clientWidth - 176) + "px";
-      tooltip.style.top = Math.min(Math.max(point.y - 28, 6), target.clientHeight - 32) + "px";
-      tooltip.hidden = false;
-    });
-    cy.on("mouseout", "node", function () { tooltip.hidden = true; });
-    cy.on("tap", "node", function (event) {
-      var url = event.target.data("url");
-      if (url) window.location.href = url;
+    window.NeoXMindGraph.render(target, {
+      graphData: graph.graphData,
+      full: full,
+      theme: graphTheme()
     });
   }
 
@@ -605,7 +585,7 @@
     document.querySelectorAll("[data-graph-fit]").forEach(function (button) {
       button.addEventListener("click", function () {
         var graph = document.querySelector("[data-global-graph]");
-        if (graph && graph._cytoscape) graph._cytoscape.fit(undefined, 35);
+        if (graph && window.NeoXMindGraph) window.NeoXMindGraph.fit(graph, 35);
       });
     });
   }
