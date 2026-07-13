@@ -36,7 +36,7 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 320px; background: var(--bg); scroll-behavior: smooth; }
+html { min-width: 320px; background: var(--bg); scroll-behavior: smooth; scrollbar-gutter: stable; }
 body { min-width: 320px; margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.65; text-rendering: optimizeLegibility; }
 body::before { position: fixed; z-index: -1; inset: 0; background-image: radial-gradient(circle at 2px 2px, color-mix(in srgb, var(--line) 56%, transparent) 1px, transparent 0); background-size: 26px 26px; content: ""; opacity: 0.23; pointer-events: none; }
 ::selection { background: var(--accent-soft); color: var(--text); }
@@ -88,6 +88,16 @@ button { color: inherit; }
 
 body.reading-mode .quartz-shell { display: block; width: min(800px, calc(100% - 40px)); }.reading-mode .sidebar { display: none; }.reading-mode .content-column { padding-top: 54px; }.reading-mode .page--article { max-width: 760px; margin: 0 auto; }.reading-mode .post-content { font-size: 18px; line-height: 2; }
 body.reading-mode .reader-exit { display: inline-flex; }
+.explorer-file { transition: background-color 120ms ease, color 120ms ease; }
+
+@view-transition { navigation: auto; }
+@keyframes page-reveal { from { opacity: 0.55; } }
+::view-transition-old(root) { animation: none; }
+::view-transition-new(root) { animation: 140ms ease-out both page-reveal; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
 
 @media (max-width: 1120px) { .quartz-shell { grid-template-columns: minmax(205px, 245px) minmax(0, 1fr); gap: 34px; width: min(1040px, calc(100% - 48px)); }.sidebar--right { display: none; }.content-column { max-width: 760px; }.page--home, .page--list, .page--article { max-width: none; } }
 @media (max-width: 760px) { body { font-size: 14px; }.mobile-header { position: sticky; z-index: 10; top: 0; display: flex; height: 52px; align-items: center; justify-content: space-between; padding: 0 17px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 91%, transparent); backdrop-filter: blur(12px); }.mobile-header a { color: var(--text); font-family: var(--serif); font-size: 17px; font-weight: 700; text-decoration: none; }.mobile-header div { display: flex; gap: 4px; }.mobile-header button { display: grid; width: 28px; height: 28px; place-items: center; border: 0; border-radius: 4px; background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; }.mobile-header button:hover { background: var(--surface-soft); color: var(--accent); }.quartz-shell { display: block; width: min(100% - 32px, 760px); }.content-column { padding: 34px 0 26px; }.sidebar--left { position: fixed; z-index: 15; top: 0; bottom: 0; left: 0; width: min(310px, 84vw); height: auto; padding: 70px 20px 25px; border-right: 1px solid var(--line); background: var(--bg); box-shadow: 14px 0 35px rgba(0, 0, 0, 0.16); transform: translateX(-105%); transition: transform 190ms ease; }.sidebar--left.is-open { transform: translateX(0); }.sidebar--left::after { position: fixed; z-index: -1; inset: 0 auto 0 100%; width: 100vw; background: rgba(0, 0, 0, 0.3); content: ""; opacity: 0; pointer-events: none; }.sidebar--left.is-open::after { opacity: 1; pointer-events: auto; }.sidebar--right { display: none; }.article-header { margin-bottom: 25px; padding-bottom: 22px; }.article-header h1, .article-header--home h1 { font-size: clamp(31px, 9vw, 43px); }.post-content { font-size: 16px; line-height: 1.82; }.post-content h2 { font-size: 23px; }.post-content h2::before { left: -10px; width: 3px; }.post-content pre { margin-right: -2px; margin-left: -2px; padding: 13px; }.home-category-grid { grid-template-columns: 1fr; }.compact-note-list a { grid-template-columns: 73px minmax(0, 1fr); gap: 9px; }.compact-note-list small { display: none; }.year-group { display: block; margin-bottom: 42px; }.year-group h2 { margin: 0 0 14px; font-size: 28px; }.post-nav { grid-template-columns: 1fr; margin-top: 45px; }.site-footer { margin-top: 45px; }.search-dialog, .graph-dialog { padding: 55px 12px 12px; }.graph-dialog__header h2 { font-size: 20px; }.global-graph { height: 70vh; padding: 4px; }.reading-mode .quartz-shell { width: min(100% - 32px, 760px); }.reading-mode .mobile-header { display: flex; }.reading-mode .content-column { padding-top: 34px; } }

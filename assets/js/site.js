@@ -6,6 +6,27 @@
   var searchData;
   var explorerData;
   var graphData;
+  var siteVersion = body.getAttribute("data-site-version") || "dev";
+  var EXPLORER_CACHE_KEY = "oj-explorer-index:" + siteVersion;
+  var EXPLORER_MARKUP_KEY = "oj-explorer-markup:" + siteVersion;
+  var EXPLORER_SCROLL_KEY = "oj-explorer-scroll";
+
+  function readSessionJson(key) {
+    try {
+      var value = sessionStorage.getItem(key);
+      return value ? JSON.parse(value) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function writeSessionJson(key, value) {
+    try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (error) {}
+  }
+
+  function cacheExplorerMarkup(target) {
+    try { sessionStorage.setItem(EXPLORER_MARKUP_KEY, target.innerHTML); } catch (error) {}
+  }
 
   function fetchJson(attribute) {
     var url = body.getAttribute(attribute);
@@ -109,7 +130,7 @@
     return Object.keys(object).sort(function (a, b) { return a.localeCompare(b, "zh-Hans-CN"); });
   }
 
-  function buildExplorer() {
+  function buildExplorer(restoreScroll) {
     var target = document.querySelector("[data-explorer-tree]");
     if (!target || !explorerData) return;
     var tree = { folders: {}, files: [] };
@@ -151,11 +172,6 @@
         var expanded = hasCurrent(child);
         button.classList.toggle("is-collapsed", !expanded);
         button.setAttribute("aria-expanded", String(expanded));
-        button.addEventListener("click", function () {
-          var collapsed = !button.classList.contains("is-collapsed");
-          button.classList.toggle("is-collapsed", collapsed);
-          button.setAttribute("aria-expanded", String(!collapsed));
-        });
         item.appendChild(button);
         item.appendChild(nested);
         list.appendChild(item);
@@ -175,9 +191,15 @@
     }
 
     target.replaceChildren(renderNode(tree, 0));
+    cacheExplorerMarkup(target);
     var currentLink = target.querySelector(".explorer-file.is-current");
     var sidebar = target.closest("[data-left-sidebar]");
     if (currentLink && sidebar) {
+      var savedScroll = restoreScroll ? readSessionJson(EXPLORER_SCROLL_KEY) : null;
+      if (savedScroll && savedScroll.path === window.location.pathname && typeof savedScroll.top === "number") {
+        sidebar.scrollTop = savedScroll.top;
+        return;
+      }
       window.requestAnimationFrame(function () {
         var sidebarRect = sidebar.getBoundingClientRect();
         var linkRect = currentLink.getBoundingClientRect();
@@ -190,6 +212,8 @@
   function initExplorer() {
     var rootExplorer = document.querySelector("[data-explorer]");
     var toggle = document.querySelector("[data-explorer-toggle]");
+    var tree = document.querySelector("[data-explorer-tree]");
+    var sidebar = document.querySelector("[data-left-sidebar]");
     if (toggle && rootExplorer) {
       toggle.addEventListener("click", function () {
         var collapsed = !rootExplorer.classList.contains("is-collapsed");
@@ -197,7 +221,42 @@
         toggle.setAttribute("aria-expanded", String(!collapsed));
       });
     }
-    fetchJson("data-explorer-index").then(function (items) { explorerData = items; buildExplorer(); });
+    if (tree && sidebar) {
+      tree.addEventListener("click", function (event) {
+        var folder = event.target.closest("button.explorer-folder");
+        if (folder) {
+          var collapsed = !folder.classList.contains("is-collapsed");
+          folder.classList.toggle("is-collapsed", collapsed);
+          folder.setAttribute("aria-expanded", String(!collapsed));
+          cacheExplorerMarkup(tree);
+          return;
+        }
+        var link = event.target.closest("a.explorer-file");
+        if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        writeSessionJson(EXPLORER_SCROLL_KEY, { path: link.pathname, top: sidebar.scrollTop });
+        tree.querySelectorAll(".explorer-file.is-current").forEach(function (current) {
+          current.classList.remove("is-current");
+          current.removeAttribute("aria-current");
+        });
+        link.classList.add("is-current");
+        link.setAttribute("aria-current", "page");
+        cacheExplorerMarkup(tree);
+      });
+    }
+
+    var cachedExplorer = readSessionJson(EXPLORER_CACHE_KEY);
+    if (Array.isArray(cachedExplorer) && cachedExplorer.length) {
+      explorerData = cachedExplorer;
+      buildExplorer(true);
+    }
+
+    fetchJson("data-explorer-index").then(function (items) {
+      if (!Array.isArray(items) || !items.length) return;
+      writeSessionJson(EXPLORER_CACHE_KEY, items);
+      if (explorerData) return;
+      explorerData = items;
+      buildExplorer(true);
+    });
   }
 
   function closeMobileExplorer() {
@@ -558,6 +617,18 @@
     if (dialog && dialog.classList.contains("is-open")) drawGraph(document.querySelector("[data-global-graph]"), true);
   }
 
+  var explorerInitialized = false;
+
+  function startExplorer() {
+    if (explorerInitialized || !document.querySelector("[data-explorer]")) return;
+    explorerInitialized = true;
+    initExplorer();
+  }
+
+  // site.js 位于页面底部，此时侧栏节点已经存在。提前同步恢复缓存目录，
+  // 避免浏览器先绘制折叠状态，再在 DOMContentLoaded 后展开当前分组。
+  startExplorer();
+
   document.addEventListener("DOMContentLoaded", function () {
     var searchInput = document.querySelector("[data-search-input]");
     try { if (localStorage.getItem("oj-reader") === "on") setReaderMode(true, false); } catch (error) {}
@@ -570,7 +641,7 @@
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); openSearch(); }
       if (event.key === "Escape") { closeSearch(); closeGraph(); closeMobileExplorer(); }
     });
-    initExplorer();
+    startExplorer();
     initMobileExplorer();
     generateToc();
     initProgress();

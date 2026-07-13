@@ -16,8 +16,43 @@
     <button class="explorer__title" type="button" data-explorer-toggle aria-expanded="true">
       <span>探索</span><span class="explorer__chevron">⌄</span>
     </button>
-    <div class="explorer__tree" data-explorer-tree aria-live="polite">
-      <span class="sidebar-loading">正在整理知识库…</span>
-    </div>
+    <div class="explorer__tree" data-explorer-tree aria-live="polite"></div>
+    <script>
+    (function () {
+      try {
+        var target = document.currentScript.previousElementSibling;
+        var version = document.body.getAttribute("data-site-version") || "dev";
+        var markup = sessionStorage.getItem("oj-explorer-markup:" + version);
+        if (!target || !markup) return;
+        target.innerHTML = markup;
+
+        target.querySelectorAll(".explorer-file.is-current").forEach(function (link) {
+          link.classList.remove("is-current");
+          link.removeAttribute("aria-current");
+        });
+        target.querySelectorAll(".explorer-folder").forEach(function (button) {
+          button.classList.add("is-collapsed");
+          button.setAttribute("aria-expanded", "false");
+        });
+
+        var current = Array.prototype.find.call(target.querySelectorAll("a.explorer-file"), function (link) {
+          return link.pathname === window.location.pathname;
+        });
+        if (!current) return;
+        current.classList.add("is-current");
+        current.setAttribute("aria-current", "page");
+
+        var list = current.parentElement && current.parentElement.parentElement;
+        while (list && list !== target) {
+          var folder = list.previousElementSibling;
+          if (folder && folder.classList.contains("explorer-folder")) {
+            folder.classList.remove("is-collapsed");
+            folder.setAttribute("aria-expanded", "true");
+          }
+          list = list.parentElement && list.parentElement.parentElement;
+        }
+      } catch (error) {}
+    })();
+    </script>
   </section>
 </aside>
