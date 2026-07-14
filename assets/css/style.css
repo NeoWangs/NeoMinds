@@ -1309,7 +1309,7 @@ body.reading-mode .post-content {
     max-height: 100vh;
     box-sizing: border-box;
     justify-self: end;
-    padding: 91px 16px 35px clamp(32px, 4vw, 56px);
+    padding: 30px 16px 35px clamp(32px, 4vw, 56px);
     overflow-y: auto;
     scrollbar-gutter: auto;
   }
