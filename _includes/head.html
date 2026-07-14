@@ -27,6 +27,9 @@ window.MathJax = {
     var saved = localStorage.getItem('oj-theme');
     var mode = saved || '{{ site.obsidian_jekyll.default_theme | default: "light" }}';
     document.documentElement.setAttribute('data-theme', mode);
+    if (localStorage.getItem('oj-sidebar') === 'collapsed') {
+      document.documentElement.setAttribute('data-sidebar', 'collapsed');
+    }
   } catch (e) {}
 })();
 </script>

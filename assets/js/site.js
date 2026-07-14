@@ -55,6 +55,25 @@
     window.setTimeout(refreshGraphs, 0);
   }
 
+  function syncSidebarControls() {
+    var collapsed = root.getAttribute("data-sidebar") === "collapsed";
+    document.querySelectorAll("[data-sidebar-toggle]").forEach(function (button) {
+      var label = collapsed ? "展开左侧栏" : "收起左侧栏";
+      button.setAttribute("aria-expanded", String(!collapsed));
+      button.setAttribute("aria-label", label);
+      button.title = label;
+    });
+  }
+
+  function toggleSidebar() {
+    var collapsed = root.getAttribute("data-sidebar") !== "collapsed";
+    if (collapsed) root.setAttribute("data-sidebar", "collapsed");
+    else root.removeAttribute("data-sidebar");
+    try { localStorage.setItem("oj-sidebar", collapsed ? "collapsed" : "expanded"); } catch (error) {}
+    syncSidebarControls();
+    window.setTimeout(refreshGraphs, 240);
+  }
+
   function setReaderMode(reading, persist) {
     body.classList.toggle("reading-mode", reading);
     document.querySelectorAll("[data-reader-toggle]").forEach(function (button) {
@@ -713,7 +732,9 @@
     var searchInput = document.querySelector("[data-search-input]");
     try { if (localStorage.getItem("oj-reader") === "on") setReaderMode(true, false); } catch (error) {}
     syncThemeControls();
+    syncSidebarControls();
     document.querySelectorAll("[data-theme-toggle]").forEach(function (button) { button.addEventListener("click", toggleTheme); });
+    document.querySelectorAll("[data-sidebar-toggle]").forEach(function (button) { button.addEventListener("click", toggleSidebar); });
     document.querySelectorAll("[data-reader-toggle]").forEach(function (button) { button.addEventListener("click", toggleReader); });
     document.querySelectorAll("[data-search-open]").forEach(function (button) { button.addEventListener("click", openSearch); });
     document.querySelectorAll("[data-search-close]").forEach(function (button) { button.addEventListener("click", closeSearch); });

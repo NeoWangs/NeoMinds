@@ -16,6 +16,13 @@
   --serif: "Noto Serif SC", "Songti SC", STSong, serif;
   --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
+  --sidebar-width: 280px;
+  --right-sidebar-width: clamp(288px, 22vw, 400px);
+}
+
+[data-sidebar="collapsed"] {
+  --sidebar-width: 72px;
+  --right-sidebar-width: clamp(400px, 30vw, 560px);
 }
 
 [data-theme="dark"] {
@@ -179,11 +186,12 @@ input {
 
 .quartz-shell {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   gap: 0;
   width: 100%;
   min-height: 100vh;
   margin: 0;
+  transition: grid-template-columns 220ms ease;
 }
 
 .content-column {
@@ -209,9 +217,14 @@ input {
   background: color-mix(in srgb, var(--surface) 55%, var(--bg));
   scrollbar-color: color-mix(in srgb, var(--line-strong) 58%, transparent) transparent;
   scrollbar-width: thin;
+  transition: padding 220ms ease;
 }
 
 .sidebar-heading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
 
@@ -254,11 +267,16 @@ input {
 
 .sidebar-brand__text {
   display: grid;
+  max-width: 170px;
+  overflow: hidden;
   color: inherit;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.03em;
   line-height: 1.55;
+  opacity: 1;
+  white-space: nowrap;
+  transition: max-width 180ms ease, opacity 140ms ease;
 }
 
 .sidebar-brand__text strong {
@@ -268,6 +286,36 @@ input {
 .sidebar-brand__text small {
   color: inherit;
   font-size: inherit;
+}
+
+.sidebar-collapse-toggle {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  color: var(--muted-soft);
+  cursor: pointer;
+}
+
+.sidebar-collapse-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sidebar-collapse-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  transition: transform 220ms ease;
 }
 
 .sidebar-actions {
@@ -355,6 +403,56 @@ input {
 
 [data-theme="dark"] .utility-button__sun {
   display: block;
+}
+
+@media (min-width: 761px) {
+  [data-sidebar="collapsed"] .sidebar--left {
+    padding: 20px 16px 22px;
+    overflow-y: hidden;
+  }
+
+  [data-sidebar="collapsed"] .sidebar-heading {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  [data-sidebar="collapsed"] .sidebar-brand {
+    gap: 0;
+  }
+
+  [data-sidebar="collapsed"] .sidebar-brand__text {
+    max-width: 0;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  [data-sidebar="collapsed"] .sidebar-collapse-toggle svg {
+    transform: rotate(180deg);
+  }
+
+  [data-sidebar="collapsed"] .sidebar-actions {
+    grid-template-columns: 38px;
+    justify-content: center;
+    margin-bottom: 0;
+  }
+
+  [data-sidebar="collapsed"] .sidebar-search,
+  [data-sidebar="collapsed"] .utility-button--theme {
+    width: 38px;
+    min-width: 38px;
+    gap: 0;
+    justify-content: center;
+    padding: 0;
+  }
+
+  [data-sidebar="collapsed"] .sidebar-search > span,
+  [data-sidebar="collapsed"] .sidebar-search kbd,
+  [data-sidebar="collapsed"] .utility-button--theme > span,
+  [data-sidebar="collapsed"] .explorer,
+  [data-sidebar="collapsed"] .sidebar-signature {
+    display: none;
+  }
 }
 
 .garden-nav {
@@ -1287,7 +1385,7 @@ body.reading-mode .post-content {
 @media (min-width: 1121px) {
   .quartz-shell,
   .layout-post .quartz-shell {
-    grid-template-columns: 280px minmax(0, 1fr) clamp(288px, 22vw, 400px);
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--right-sidebar-width);
   }
 
   .content-column,
@@ -1323,7 +1421,7 @@ body.reading-mode .post-content {
 @media (max-width: 1120px) {
   .quartz-shell,
   .layout-post .quartz-shell {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   }
 
   .content-column,
@@ -1347,6 +1445,10 @@ body.reading-mode .post-content {
 @media (max-width: 760px) {
   body {
     font-size: 15px;
+  }
+
+  .sidebar-collapse-toggle {
+    display: none;
   }
 
   .mobile-header {
