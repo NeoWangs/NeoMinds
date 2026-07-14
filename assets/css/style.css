@@ -117,15 +117,15 @@ body.reading-mode .reader-exit { display: inline-flex; }
   --bg: #f5efe2;
   --surface: #fbf7ec;
   --surface-soft: #f0e8d5;
-  --text: #372c1e;
-  --muted: #8a7a62;
-  --muted-soft: #a7977b;
-  --line: #e3d8c2;
-  --line-strong: #c2b394;
-  --accent: #a4653a;
+  --text: #2e2419;
+  --muted: #685842;
+  --muted-soft: #7d6d56;
+  --line: #d8cbb5;
+  --line-strong: #aa9678;
+  --accent: #8c4b28;
   --accent-soft: color-mix(in srgb, var(--accent) 9%, transparent);
-  --graph: #b5815d;
-  --warning: #9c5148;
+  --graph: #9c6948;
+  --warning: #843d38;
   --shadow: rgba(76, 52, 29, 0.12);
   --serif: "Noto Serif SC", "Songti SC", STSong, serif;
   --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -137,15 +137,15 @@ body.reading-mode .reader-exit { display: inline-flex; }
   --bg: #211b12;
   --surface: #2a2318;
   --surface-soft: #2f271a;
-  --text: #e8ddc6;
-  --muted: #a3937a;
-  --muted-soft: #796b54;
-  --line: #3a3122;
-  --line-strong: #6a5e49;
-  --accent: #d9a35f;
+  --text: #f1e7d4;
+  --muted: #c4b28f;
+  --muted-soft: #ad9b7e;
+  --line: #4b402f;
+  --line-strong: #796c55;
+  --accent: #e0ad69;
   --accent-soft: color-mix(in srgb, var(--accent) 11%, transparent);
-  --graph: #c79461;
-  --warning: #d88c72;
+  --graph: #d5a06a;
+  --warning: #e79b81;
   --shadow: rgba(0, 0, 0, 0.3);
 }
 
@@ -415,32 +415,23 @@ input {
 }
 
 .explorer {
-  margin-top: 4px;
+  margin-top: 5px;
   border-top: 1px solid var(--line);
 }
 
-.explorer__label {
-  margin: 0;
-  padding: 11px 9px 7px;
-  color: var(--muted);
-  font-family: var(--serif);
-  font-size: 11.5px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-}
-
 .explorer__tree {
-  padding: 0 0 8px;
+  padding: 10px 0 8px;
   font-family: var(--serif);
-  font-size: 12px;
+  font-size: 13.5px;
+  line-height: 1.55;
 }
 
 .explorer-folder {
-  padding: 4px 8px;
+  padding: 5px 8px;
   border-radius: 6px;
   color: var(--text);
   font-family: var(--serif);
-  font-size: 12px;
+  font-size: inherit;
 }
 
 .explorer-folder:hover {
@@ -448,10 +439,11 @@ input {
 }
 
 .explorer-file {
-  padding: 4px 8px 4px 21px;
+  padding: 5px 8px 5px 21px;
   border-radius: 6px;
   color: var(--muted);
   font-family: var(--serif);
+  font-size: inherit;
 }
 
 .explorer-file:hover,
@@ -459,6 +451,45 @@ input {
   background: var(--accent-soft);
   color: var(--accent);
   font-weight: 600;
+}
+
+.graph-view-controls {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+}
+
+.graph-view-button {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.graph-view-button svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.45;
+}
+
+.graph-view-button:hover,
+.graph-view-button:focus-visible,
+.graph-view-button.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  outline: none;
 }
 
 .sidebar-signature {

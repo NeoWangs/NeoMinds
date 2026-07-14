@@ -376,14 +376,7 @@
   function pickGraphNodes(data, currentId, full) {
     var byId = {};
     data.forEach(function (node) { byId[node.id] = node; });
-    if (full) {
-      var tagCounts = graphTagCounts(data);
-      return data.filter(function (node) {
-        var hasNoteLink = (node.links || []).length || data.some(function (other) { return (other.links || []).indexOf(node.id) !== -1; });
-        var hasSharedTag = (node.tags || []).some(function (tag) { return tagCounts[tag] > 1; });
-        return hasNoteLink || hasSharedTag;
-      });
-    }
+    if (full) return data;
     if (currentId && byId[currentId]) {
       var current = byId[currentId];
       var incoming = data.filter(function (node) { return (node.links || []).indexOf(currentId) !== -1; });
@@ -435,7 +428,76 @@
     return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
   }
 
+  function graphOuterPosition(index, innerCount) {
+    var angle = index * 2.3999632297;
+    var radius = 245 + Math.sqrt(innerCount + 1) * 16 + Math.floor(index / 12) * 30;
+    return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+  }
+
+  function globalTagGraph(nodes) {
+    var tagCounts = graphTagCounts(nodes);
+    var tagNodes = {};
+    var tagEdges = {};
+    var connectedTags = {};
+    nodes.forEach(function (node) {
+      var tags = (node.tags || []).slice().sort(function (left, right) { return left.localeCompare(right, "zh-Hans-CN"); });
+      tags.forEach(function (tag) {
+        var tagId = "tag:" + encodeURIComponent(tag);
+        tagNodes[tagId] = { id: tagId, tag: tag, count: tagCounts[tag] };
+      });
+      for (var sourceIndex = 0; sourceIndex < tags.length; sourceIndex += 1) {
+        for (var targetIndex = sourceIndex + 1; targetIndex < tags.length; targetIndex += 1) {
+          var sourceId = "tag:" + encodeURIComponent(tags[sourceIndex]);
+          var targetId = "tag:" + encodeURIComponent(tags[targetIndex]);
+          var edgeId = "tag-pair:" + sourceId + ":" + targetId;
+          tagEdges[edgeId] = (tagEdges[edgeId] || 0) + 1;
+          connectedTags[sourceId] = true;
+          connectedTags[targetId] = true;
+        }
+      }
+    });
+    var tagIds = Object.keys(tagNodes).sort(function (left, right) { return tagNodes[left].tag.localeCompare(tagNodes[right].tag, "zh-Hans-CN"); });
+    var connectedTagIds = tagIds.filter(function (tagId) { return connectedTags[tagId]; });
+    var isolatedTagIds = tagIds.filter(function (tagId) { return !connectedTags[tagId]; });
+    var graphNodes = connectedTagIds.concat(isolatedTagIds).map(function (tagId, index) {
+      var tag = tagNodes[tagId];
+      var isIsolated = !connectedTags[tagId];
+      return {
+        position: isIsolated ? graphOuterPosition(index - connectedTagIds.length, connectedTagIds.length) : graphSeedPosition(index),
+        data: {
+          id: tag.id,
+          label: tagLabel(tag.tag, true),
+          title: "#" + tag.tag,
+          url: tagUrl(tag.tag),
+          kind: "tag",
+          count: tag.count,
+          isIsolated: isIsolated,
+          isCenter: false
+        }
+      };
+    });
+    var edges = Object.keys(tagEdges).map(function (edgeId) {
+      var pair = edgeId.replace("tag-pair:", "").split(":tag:");
+      return {
+        data: {
+          id: edgeId,
+          source: pair[0],
+          target: "tag:" + pair[1],
+          relation: "tag",
+          count: tagEdges[edgeId]
+        }
+      };
+    });
+    return {
+      graphData: { nodes: graphNodes, edges: edges },
+      tagCount: graphNodes.length,
+      noteEdgeCount: 0,
+      tagEdgeCount: edges.length
+    };
+  }
+
   function graphElements(nodes, currentId, full) {
+    if (full) return globalTagGraph(nodes);
     var included = new Set(nodes.map(function (node) { return node.id; }));
     var tagCounts = graphTagCounts(nodes);
     var current = nodes.find(function (node) { return node.id === currentId; });
@@ -521,9 +583,10 @@
     var list = document.createElement("ul");
     summary.className = "graph-summary";
     heading.textContent = "关系数据已加载";
-    detail.textContent = full ? nodes.length + " 篇笔记 · " + graph.tagCount + " 个标签 · " + graph.noteEdgeCount + " 条双链" : nodes.length + " 篇相关笔记 · " + graph.tagCount + " 个标签";
+    var summaryNodes = full ? graph.graphData.nodes.map(function (node) { return node.data; }) : nodes;
+    detail.textContent = full ? graph.tagCount + " 个标签 · " + graph.tagEdgeCount + " 条共现关系" : nodes.length + " 篇相关笔记 · " + graph.tagCount + " 个标签";
     list.className = "graph-summary__list";
-    nodes.slice(0, full ? 10 : 6).forEach(function (node) {
+    summaryNodes.slice(0, full ? 10 : 6).forEach(function (node) {
       var item = document.createElement("li");
       var link = document.createElement(node.url ? "a" : "span");
       link.textContent = node.title;
@@ -544,15 +607,16 @@
     var currentId = target.getAttribute("data-current-slug") || body.getAttribute("data-current-slug") || "";
     var nodes = pickGraphNodes(graphData, currentId, full);
     var graph = graphElements(nodes, currentId, full);
-    var status = full ? document.querySelector("[data-global-graph-status]") : document.querySelector("[data-knowledge-graph-status]");
+    var inDialog = target.hasAttribute("data-global-graph");
+    var status = inDialog ? document.querySelector("[data-global-graph-status]") : document.querySelector("[data-knowledge-graph-status]");
     if (full) {
-      target.setAttribute("aria-label", "所有笔记关系图，展示 " + nodes.length + " 篇笔记、" + graph.tagCount + " 个标签、" + graph.noteEdgeCount + " 条笔记关联和 " + graph.tagEdgeCount + " 条标签关联");
+      target.setAttribute("aria-label", "全局标签关系图，展示 " + graph.tagCount + " 个标签和 " + graph.tagEdgeCount + " 条标签共现关系");
       if (status) {
-        var hiddenCount = graphData.length - nodes.length;
-        status.textContent = "展示 " + nodes.length + " 篇笔记、" + graph.tagCount + " 个共享标签、" + graph.noteEdgeCount + " 条双链、" + graph.tagEdgeCount + " 条标签关联" + (hiddenCount ? "；已收起 " + hiddenCount + " 篇未关联笔记" : "") + "。力导向布局按双链与标签关系展开；悬浮可聚焦一跳关系，点“适配视图”查看全貌。";
+        status.textContent = "展示 " + graph.tagCount + " 个标签、" + graph.tagEdgeCount + " 条标签共现关系；孤立标签置于外围，文章节点已隐藏。悬浮可聚焦一跳关系，点击标签可查看对应文章。";
       }
-    } else if (status) {
-      status.textContent = nodes.length + " 篇相关笔记 · " + graph.tagCount + " 个关联标签";
+    } else {
+      target.setAttribute("aria-label", "当前笔记关系图，展示 " + nodes.length + " 篇相关笔记和 " + graph.tagCount + " 个关联标签");
+      if (status) status.textContent = nodes.length + " 篇相关笔记 · " + graph.tagCount + " 个关联标签";
     }
     if (!window.NeoXMindGraph || typeof window.NeoXMindGraph.render !== "function") {
       renderGraphSummary(target, nodes, graph, full);
@@ -572,21 +636,42 @@
     });
   }
 
-  function openGraph() {
+  function openGraph(full) {
     var dialog = document.querySelector("[data-graph-dialog]");
     if (!dialog) return;
+    var title = document.querySelector("[data-graph-dialog-title]");
+    var isGlobal = full === true;
     dialog.classList.add("is-open");
     dialog.setAttribute("aria-hidden", "false");
+    dialog.setAttribute("aria-label", isGlobal ? "全局关系图谱" : "当前关系图谱");
+    dialog.setAttribute("data-graph-scope", isGlobal ? "global" : "current");
+    if (title) title.textContent = isGlobal ? "全局关系图谱" : "当前关系图谱";
+    setGraphView(isGlobal ? "global" : "current");
     setBodyLock(true);
-    drawGraph(document.querySelector("[data-global-graph]"), true);
+    drawGraph(document.querySelector("[data-global-graph]"), isGlobal);
   }
+
+  function openGlobalGraph() { openGraph(true); }
 
   function closeGraph() {
     var dialog = document.querySelector("[data-graph-dialog]");
     if (!dialog) return;
     dialog.classList.remove("is-open");
     dialog.setAttribute("aria-hidden", "true");
+    setGraphView("current");
     setBodyLock(false);
+  }
+
+  function setGraphView(view) {
+    var isGlobal = view === "global";
+    document.querySelectorAll("[data-graph-open]").forEach(function (button) {
+      button.classList.toggle("is-active", isGlobal);
+      button.setAttribute("aria-pressed", String(isGlobal));
+    });
+  }
+
+  function showCurrentGraph() {
+    openGraph(false);
   }
 
   function initGraphs() {
@@ -594,7 +679,8 @@
       graphData = items;
       drawGraph(document.querySelector("[data-knowledge-graph]"), false);
     });
-    document.querySelectorAll("[data-graph-open]").forEach(function (button) { button.addEventListener("click", openGraph); });
+    document.querySelectorAll("[data-graph-open]").forEach(function (button) { button.addEventListener("click", openGlobalGraph); });
+    document.querySelectorAll("[data-graph-current]").forEach(function (button) { button.addEventListener("click", showCurrentGraph); });
     document.querySelectorAll("[data-graph-close]").forEach(function (button) { button.addEventListener("click", closeGraph); });
     document.querySelectorAll("[data-graph-fit]").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -608,7 +694,7 @@
     if (!graphData) return;
     document.querySelectorAll("[data-knowledge-graph]").forEach(function (target) { drawGraph(target, false); });
     var dialog = document.querySelector("[data-graph-dialog]");
-    if (dialog && dialog.classList.contains("is-open")) drawGraph(document.querySelector("[data-global-graph]"), true);
+    if (dialog && dialog.classList.contains("is-open")) drawGraph(document.querySelector("[data-global-graph]"), dialog.getAttribute("data-graph-scope") === "global");
   }
 
   var explorerInitialized = false;

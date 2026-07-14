@@ -12,6 +12,7 @@ import {
   forceCollide,
   forceLink,
   forceManyBody,
+  forceRadial,
   forceSimulation,
   forceX,
   forceY,
@@ -82,7 +83,7 @@ function drawDashedLine(graphics, x1, y1, x2, y2, dashLength = 5, gapLength = 4)
   }
 }
 
-function edgeEndpoints(link, full) {
+function edgeEndpoints(link, full, sourceScale = 1, targetScale = 1) {
   const source = link.source;
   const target = link.target;
   const dx = target.x - source.x;
@@ -90,8 +91,8 @@ function edgeEndpoints(link, full) {
   const distance = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
   const unitX = dx / distance;
   const unitY = dy / distance;
-  const sourcePadding = source.kind === "tag" ? tagWidth(source, full) / 2 : nodeRadius(source, full) + 2;
-  const targetPadding = target.kind === "tag" ? tagWidth(target, full) / 2 : nodeRadius(target, full) + 3;
+  const sourcePadding = (source.kind === "tag" ? tagWidth(source, full) / 2 : nodeRadius(source, full) + 2) * sourceScale;
+  const targetPadding = (target.kind === "tag" ? tagWidth(target, full) / 2 : nodeRadius(target, full) + 3) * targetScale;
   return {
     x1: source.x + unitX * sourcePadding,
     y1: source.y + unitY * sourcePadding,
@@ -201,6 +202,8 @@ class KnowledgeGraph {
       .force("center", forceCenter(0, 0).strength(0.08))
       .force("x", forceX(0).strength(0.018))
       .force("y", forceY(0).strength(0.018))
+      .force("isolated-tag-ring", forceRadial((node) => node.isIsolated ? 275 : 0)
+        .strength((node) => node.isIsolated ? 0.09 : 0))
       .force("collision", forceCollide()
         .radius((node) => node.kind === "tag" ? tagWidth(node, this.full) * 0.48 : nodeRadius(node, this.full) + (this.full ? 15 : 19))
         .strength(0.82)
@@ -266,7 +269,7 @@ class KnowledgeGraph {
   }
 
   textStyle(node) {
-    const fontSize = node.kind === "tag" ? (this.full ? 9 : 10) : (this.full ? 9 : 10.5);
+    const fontSize = this.labelFontSize(node);
     return new TextStyle({
       fill: node.kind === "tag" ? this.theme.surface : (node.isCenter ? this.theme.accent : this.theme.text),
       fontFamily: this.theme.sans || '"Noto Sans SC", "PingFang SC", sans-serif',
@@ -274,6 +277,24 @@ class KnowledgeGraph {
       fontWeight: node.isCenter || node.kind === "tag" ? "600" : "500",
       lineHeight: Math.ceil(fontSize * 1.3),
       stroke: node.kind === "tag" ? undefined : { color: this.theme.surface, width: this.full ? 3 : 4, join: "round" },
+    });
+  }
+
+  labelFontSize(node) {
+    return node.kind === "tag" ? (this.full ? 9 : 10) : (this.full ? 9 : 10.5);
+  }
+
+  syncNodeScale() {
+    if (!this.viewport) return;
+    const viewportScale = this.viewport.scale.x || 1;
+    this.nodes.forEach((node) => {
+      const nodeView = this.nodeViews.get(node.id);
+      if (!nodeView) return;
+      const baseSize = this.labelFontSize(node);
+      const minimum = node.kind === "tag" ? 8 : 9;
+      const maximum = node.kind === "tag" ? 14 : 16;
+      const visibleSize = clamp(baseSize * viewportScale, minimum, maximum);
+      nodeView.view.scale.set(visibleSize / (baseSize * viewportScale));
     });
   }
 
@@ -300,7 +321,9 @@ class KnowledgeGraph {
       const alpha = active ? (link.relation === "tag" ? 0.48 : 0.62) : 0.07;
       const color = link.relation === "tag" ? this.theme.accent : this.theme.line;
       const width = link.relation === "tag" ? 0.8 : 1.05;
-      const points = edgeEndpoints(link, this.full);
+      const sourceScale = this.nodeViews.get(link.source.id)?.view.scale.x || 1;
+      const targetScale = this.nodeViews.get(link.target.id)?.view.scale.x || 1;
+      const points = edgeEndpoints(link, this.full, sourceScale, targetScale);
       if (link.relation === "tag") {
         drawDashedLine(graphics, points.x1, points.y1, points.x2, points.y2, 4.5, 3.5);
       } else {
@@ -430,9 +453,11 @@ class KnowledgeGraph {
     const factor = Math.exp(-event.deltaY * 0.0012);
     const nextScale = clamp(this.viewport.scale.x * factor, this.full ? 0.18 : 0.45, 3.2);
     this.viewport.scale.set(nextScale);
+    this.syncNodeScale();
     const after = this.viewport.toGlobal(before);
     this.viewport.position.x += pointer.x - after.x;
     this.viewport.position.y += pointer.y - after.y;
+    this.drawEdges();
   }
 
   fit(padding = 35, userInitiated = true) {
@@ -453,10 +478,12 @@ class KnowledgeGraph {
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
     this.viewport.scale.set(scale);
+    this.syncNodeScale();
     this.viewport.position.set(
       this.app.screen.width / 2 - centerX * scale,
       this.app.screen.height / 2 - centerY * scale,
     );
+    this.drawEdges();
     this.initialFitDone = true;
   }
 

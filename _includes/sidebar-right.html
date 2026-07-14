@@ -3,6 +3,14 @@
   <section class="side-panel side-panel--graph">
     <div class="side-panel__header">
       <h2>关系图谱</h2>
+      <div class="graph-view-controls" aria-label="图谱视图切换">
+        <button class="graph-view-button" type="button" data-graph-open aria-haspopup="dialog" aria-controls="global-graph-dialog" aria-pressed="false" aria-label="查看全局关系图谱" title="查看全局关系图谱">
+          <svg aria-hidden="true" viewBox="0 0 16 16"><circle cx="4" cy="4" r="2.1"></circle><circle cx="12" cy="4" r="2.1"></circle><circle cx="8" cy="12" r="2.1"></circle><path d="m5.8 5.2 1.1 4.1M10.2 5.2 9.1 9.3M6.2 4h3.6"></path></svg>
+        </button>
+        <button class="graph-view-button" type="button" data-graph-current aria-haspopup="dialog" aria-controls="global-graph-dialog" aria-label="查看当前关系图谱" title="查看当前关系图谱">
+          <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M4 12 12 4M6 4h6v6"></path><path d="M4 8.5V12h3.5"></path></svg>
+        </button>
+      </div>
     </div>
     <div class="knowledge-graph" data-knowledge-graph data-current-slug="{{ page.slug | default: '' }}" aria-label="当前笔记关系图"></div>
     <p class="graph-data-status" data-knowledge-graph-status aria-live="polite"></p>
