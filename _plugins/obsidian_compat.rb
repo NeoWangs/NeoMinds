@@ -14,6 +14,9 @@ module Jekyll
     IMAGE_SRC_PATTERN = %r{(<img\b[^>]*\bsrc=(["']))([^"']+)(\2)}i.freeze
     CALLOUT_START_PATTERN = /\A>\s*\[!([\w-]+)\][+-]?\s*(.*?)\s*\z/i.freeze
     BLOCKQUOTE_LINE_PATTERN = /\A>\s?(.*)\z/.freeze
+    HIGHLIGHT_PATTERN = /(?<!\\)==(?=\S)([^\n]+?)(?<=\S)==/.freeze
+    CODE_SPAN_PATTERN = /(`+[^`]*`+)/.freeze
+    FENCED_CODE_PATTERN = /\A\s*(`{3,}|~{3,})/.freeze
     ASSET_SOURCE_ROOT = "MyMind".freeze
     ASSET_URL_ROOT = "assets/obsidian".freeze
     IMAGE_EXTENSIONS = %w(.apng .avif .gif .jpg .jpeg .png .svg .webp).freeze
@@ -176,6 +179,31 @@ module Jekyll
                     .gsub(WIKI_LINK_PATTERN) { resolve_wiki_link(doc, Regexp.last_match(1)) }
     end
 
+    def expand_highlights(content)
+      in_fenced_code_block = false
+      fence_character = nil
+
+      content.to_s.lines.map do |line|
+        fence = line.match(FENCED_CODE_PATTERN)
+        if fence
+          marker = fence[1]
+          if in_fenced_code_block
+            in_fenced_code_block = false if marker.start_with?(fence_character)
+          else
+            in_fenced_code_block = true
+            fence_character = marker[0]
+          end
+          next line
+        end
+
+        next line if in_fenced_code_block
+
+        line.split(CODE_SPAN_PATTERN).map do |segment|
+          segment.start_with?("`") ? segment : segment.gsub(HIGHLIGHT_PATTERN, '<mark>\\1</mark>')
+        end.join
+      end.join
+    end
+
     def expand_callouts(content)
       lines = content.to_s.lines(chomp: true)
       expanded = []
@@ -286,6 +314,7 @@ end
 Jekyll::Hooks.register :documents, :pre_render do |doc|
   next unless doc.collection.label == "posts"
 
+  doc.content = Jekyll::ObsidianCompat.expand_highlights(doc.content)
   doc.content = Jekyll::ObsidianCompat.transform_wiki_syntax(doc, doc.content)
   doc.content = Jekyll::ObsidianCompat.expand_callouts(doc.content)
 end
@@ -299,6 +328,7 @@ end
 Jekyll::Hooks.register :pages, :pre_render do |page|
   next unless page.data["homepage"]
 
+  page.content = Jekyll::ObsidianCompat.expand_highlights(page.content)
   page.content = Jekyll::ObsidianCompat.transform_wiki_syntax(page, page.content)
   page.content = Jekyll::ObsidianCompat.expand_callouts(page.content)
 end
