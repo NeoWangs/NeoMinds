@@ -10,6 +10,7 @@
   var EXPLORER_CACHE_KEY = "oj-explorer-index:" + siteVersion;
   var EXPLORER_MARKUP_KEY = "oj-explorer-markup:" + siteVersion;
   var EXPLORER_SCROLL_KEY = "oj-explorer-scroll";
+  var LAST_READ_ARTICLE_KEY = "oj-last-read-article";
 
   function readSessionJson(key) {
     try {
@@ -38,6 +39,24 @@
 
   function setBodyLock(locked) {
     body.style.overflow = locked ? "hidden" : "";
+  }
+
+  function rememberLastReadArticle() {
+    if (!document.querySelector(".page--article")) return;
+    var url = body.getAttribute("data-current-url");
+    if (!url) return;
+    try { localStorage.setItem(LAST_READ_ARTICLE_KEY, url); } catch (error) {}
+  }
+
+  function resumeLastReadArticle() {
+    if (!document.querySelector(".page--home")) return;
+    try {
+      var savedUrl = localStorage.getItem(LAST_READ_ARTICLE_KEY);
+      if (!savedUrl) return;
+      var target = new URL(savedUrl, window.location.origin);
+      if (target.origin !== window.location.origin || target.pathname === window.location.pathname) return;
+      window.location.replace(target.href);
+    } catch (error) {}
   }
 
   function syncThemeControls() {
@@ -727,6 +746,8 @@
   // site.js 位于页面底部，此时侧栏节点已经存在。提前同步恢复缓存目录，
   // 避免浏览器先绘制折叠状态，再在 DOMContentLoaded 后展开当前分组。
   startExplorer();
+  rememberLastReadArticle();
+  resumeLastReadArticle();
 
   document.addEventListener("DOMContentLoaded", function () {
     var searchInput = document.querySelector("[data-search-input]");
