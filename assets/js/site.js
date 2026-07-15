@@ -41,11 +41,15 @@
     body.style.overflow = locked ? "hidden" : "";
   }
 
-  function rememberLastReadArticle() {
+  function rememberLastReadArticle(anchor) {
     if (!document.querySelector(".page--article")) return;
     var url = body.getAttribute("data-current-url");
     if (!url) return;
-    try { localStorage.setItem(LAST_READ_ARTICLE_KEY, url); } catch (error) {}
+    try {
+      var target = new URL(url, window.location.origin);
+      target.hash = anchor || window.location.hash;
+      localStorage.setItem(LAST_READ_ARTICLE_KEY, target.pathname + target.search + target.hash);
+    } catch (error) {}
   }
 
   function resumeLastReadArticle() {
@@ -353,6 +357,7 @@
 
     var status = document.querySelector("[data-toc-status]");
     var ticking = false;
+    var savedHeadingId = "";
 
     function updateTocState() {
       var threshold = Math.max(116, window.innerHeight * 0.3);
@@ -372,6 +377,10 @@
         link.setAttribute("aria-label", (read ? "已读：" : "未读：") + link.textContent);
       });
       if (status) status.textContent = readCount + "/" + headings.length + " 已读";
+      if (currentIndex >= 0 && headings[activeIndex].id !== savedHeadingId) {
+        savedHeadingId = headings[activeIndex].id;
+        rememberLastReadArticle("#" + savedHeadingId);
+      }
       ticking = false;
     }
 
