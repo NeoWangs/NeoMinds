@@ -448,10 +448,47 @@ input {
   [data-sidebar="collapsed"] .sidebar-search > span,
   [data-sidebar="collapsed"] .sidebar-search kbd,
   [data-sidebar="collapsed"] .utility-button--theme > span,
+  [data-sidebar="collapsed"] .sidebar-external-links,
   [data-sidebar="collapsed"] .explorer,
   [data-sidebar="collapsed"] .sidebar-signature {
     display: none;
   }
+}
+
+.sidebar-external-links {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 12px;
+}
+
+.sidebar-external-links a {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.sidebar-external-links a:hover,
+.sidebar-external-links a:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent);
+  outline: none;
+}
+
+.sidebar-external-links svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .garden-nav {

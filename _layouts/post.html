@@ -8,7 +8,7 @@ layout: default
   <article class="post">
     <header class="article-header">
       <nav class="breadcrumbs" aria-label="面包屑导航">
-        <a href="{{ '/' | relative_url }}">主页</a>
+        <a href="{{ '/' | relative_url }}" data-home-link>主页</a>
         {% if first_category %}<span>›</span><a href="{{ '/categories/' | append: first_category | append: '/' | relative_url }}">{{ first_category }}</a>{% endif %}
         {% if source_parts.size > 2 %}<span>›</span><span>{{ source_parts[1] }}</span>{% endif %}
       </nav>

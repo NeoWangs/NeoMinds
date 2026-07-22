@@ -11,6 +11,7 @@
   var EXPLORER_MARKUP_KEY = "oj-explorer-markup:" + siteVersion;
   var EXPLORER_SCROLL_KEY = "oj-explorer-scroll";
   var LAST_READ_ARTICLE_KEY = "oj-last-read-article";
+  var SKIP_LAST_READ_RESUME_KEY = "oj-skip-last-read-resume";
 
   function readSessionJson(key) {
     try {
@@ -55,12 +56,24 @@
   function resumeLastReadArticle() {
     if (!document.querySelector(".page--home")) return;
     try {
+      if (sessionStorage.getItem(SKIP_LAST_READ_RESUME_KEY) === "true") {
+        sessionStorage.removeItem(SKIP_LAST_READ_RESUME_KEY);
+        return;
+      }
       var savedUrl = localStorage.getItem(LAST_READ_ARTICLE_KEY);
       if (!savedUrl) return;
       var target = new URL(savedUrl, window.location.origin);
       if (target.origin !== window.location.origin || target.pathname === window.location.pathname) return;
       window.location.replace(target.href);
     } catch (error) {}
+  }
+
+  function initHomeLinks() {
+    document.addEventListener("click", function (event) {
+      var link = event.target.closest("[data-home-link]");
+      if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      try { sessionStorage.setItem(SKIP_LAST_READ_RESUME_KEY, "true"); } catch (error) {}
+    });
   }
 
   function syncThemeControls() {
@@ -755,6 +768,7 @@
   // site.js 位于页面底部，此时侧栏节点已经存在。提前同步恢复缓存目录，
   // 避免浏览器先绘制折叠状态，再在 DOMContentLoaded 后展开当前分组。
   startExplorer();
+  initHomeLinks();
   rememberLastReadArticle();
   resumeLastReadArticle();
 
