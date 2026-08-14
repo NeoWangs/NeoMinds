@@ -457,8 +457,16 @@ input {
 
 .sidebar-external-links {
   display: grid;
-  gap: 2px;
-  margin: 0 0 12px;
+  gap: 3px;
+  margin: 16px 0 0;
+  padding: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 76%, var(--accent-soft));
+}
+
+.sidebar-external-links + .sidebar-signature {
+  margin: 0;
+  padding-top: 8px;
 }
 
 .sidebar-external-links a {
@@ -466,12 +474,15 @@ input {
   min-height: 32px;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 10px;
+  padding: 4px 8px 4px 0;
   border-radius: 7px;
-  color: var(--muted);
+  color: var(--text);
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.2;
   text-decoration: none;
+  transition: background 150ms ease, color 150ms ease;
 }
 
 .sidebar-external-links a:hover,
@@ -489,6 +500,7 @@ input {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.8;
+  color: var(--accent);
 }
 
 .garden-nav {
@@ -656,7 +668,8 @@ input {
   color: var(--muted-soft);
   font-size: 11.5px;
   letter-spacing: 0.05em;
-  line-height: 1.85;
+  line-height: 1.6;
+  white-space: nowrap;
 }
 
 .sidebar--right {
