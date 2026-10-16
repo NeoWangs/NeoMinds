@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 5、MoE（混合专家模型）
+title: 05、MoE（混合专家模型）
 date: 2026-03-12 12:00:00 +0800
 slug: 05-MoE-混合专家模型
 category: AI

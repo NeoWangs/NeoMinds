@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 6、Transformer
+title: 06、Transformer
 date: 2026-03-12 12:00:00 +0800
 slug: 06-Transformer
 category: AI

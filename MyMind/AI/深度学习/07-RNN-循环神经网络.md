@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 7、RNN（循环神经网络）
+title: 07、RNN（循环神经网络）
 date: 2026-03-12 12:00:00 +0800
 slug: 07-RNN-循环神经网络
 category: AI

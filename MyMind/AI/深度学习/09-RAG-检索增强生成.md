@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 9、RAG（检索增强生成）
+title: 09、RAG（检索增强生成）
 date: 2026-03-12 12:00:00 +0800
 slug: 09-RAG-检索增强生成
 category: AI

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 4、GAN（生成对抗网络）
+title: 04、GAN（生成对抗网络）
 date: 2026-03-12 12:00:00 +0800
 slug: 04-GAN-生成对抗网络
 category: AI

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 3、CNN（卷积神经网络）
+title: 03、CNN（卷积神经网络）
 date: 2026-03-12 12:00:00 +0800
 slug: 03-CNN-卷积神经网络
 category: AI

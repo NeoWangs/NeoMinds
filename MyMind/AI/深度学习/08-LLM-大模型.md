@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 8、LLM（大模型）
+title: 08、LLM（大模型）
 date: 2026-03-12 12:00:00 +0800
 slug: 08-LLM-大模型
 category: AI
