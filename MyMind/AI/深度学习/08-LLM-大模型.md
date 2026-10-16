@@ -1,16 +1,16 @@
 ---
 layout: post
-title: LLM（大模型）
+title: 8、LLM（大模型）
 date: 2026-03-12 12:00:00 +0800
 slug: 08-LLM-大模型
 category: AI
 categories:
-- AI
+  - AI
 tags:
-- ai
-- 大模型
-- LLM
-- 深度学习
+  - ai
+  - 大模型
+  - LLM
+  - 深度学习
 source_path: AI/深度学习/08 LLM（大模型）.md
 ---
 

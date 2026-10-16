@@ -1,17 +1,17 @@
 ---
 layout: post
-title: RAG（检索增强生成）
+title: 9、RAG（检索增强生成）
 date: 2026-03-12 12:00:00 +0800
 slug: 09-RAG-检索增强生成
 category: AI
 categories:
-- AI
+  - AI
 tags:
-- ai
-- RAG
-- 检索增强生成
-- 大模型
-- 深度学习
+  - ai
+  - RAG
+  - 检索增强生成
+  - 大模型
+  - 深度学习
 source_path: AI/深度学习/09 RAG（检索增强生成）.md
 ---
 

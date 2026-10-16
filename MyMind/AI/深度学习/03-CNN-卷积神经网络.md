@@ -1,16 +1,16 @@
 ---
 layout: post
-title: CNN（卷积神经网络）
+title: 3、CNN（卷积神经网络）
 date: 2026-03-12 12:00:00 +0800
 slug: 03-CNN-卷积神经网络
 category: AI
 categories:
-- AI
+  - AI
 tags:
-- ai
-- 深度学习
-- CNN
-- 卷积神经网络
+  - ai
+  - 深度学习
+  - CNN
+  - 卷积神经网络
 source_path: AI/深度学习/03 CNN（卷积神经网络）.md
 ---
 

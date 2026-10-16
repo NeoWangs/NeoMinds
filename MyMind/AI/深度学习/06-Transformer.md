@@ -1,15 +1,15 @@
 ---
 layout: post
-title: Transformer
+title: 6、Transformer
 date: 2026-03-12 12:00:00 +0800
 slug: 06-Transformer
 category: AI
 categories:
-- AI
+  - AI
 tags:
-- ai
-- 深度学习
-- Transformer
+  - ai
+  - 深度学习
+  - Transformer
 source_path: AI/深度学习/06 Transformer.md
 ---
 

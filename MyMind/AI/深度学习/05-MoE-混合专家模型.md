@@ -1,16 +1,16 @@
 ---
 layout: post
-title: MoE（混合专家模型）
+title: 5、MoE（混合专家模型）
 date: 2026-03-12 12:00:00 +0800
 slug: 05-MoE-混合专家模型
 category: AI
 categories:
-- AI
+  - AI
 tags:
-- ai
-- 深度学习
-- MoE
-- 混合专家模型
+  - ai
+  - 深度学习
+  - MoE
+  - 混合专家模型
 source_path: AI/深度学习/05 MoE（混合专家模型）.md
 ---
 

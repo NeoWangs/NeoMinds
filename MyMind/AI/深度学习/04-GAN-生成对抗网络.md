@@ -1,16 +1,16 @@
 ---
 layout: post
-title: GAN（生成对抗网络）
+title: 4、GAN（生成对抗网络）
 date: 2026-03-12 12:00:00 +0800
 slug: 04-GAN-生成对抗网络
 category: AI
 categories:
-- AI
+  - AI
 tags:
-- ai
-- 深度学习
-- GAN
-- 生成对抗网络
+  - ai
+  - 深度学习
+  - GAN
+  - 生成对抗网络
 source_path: AI/深度学习/04 GAN（生成对抗网络）.md
 ---
 
