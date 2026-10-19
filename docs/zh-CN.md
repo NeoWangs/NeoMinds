@@ -90,6 +90,20 @@ MyMind/notes/hello-world/cover.svg
 
 ## Obsidian 友好的增强语法
 
+Mermaid 使用 Obsidian 原生的 `mermaid` 代码块即可在网页上绘图：
+
+````markdown
+```mermaid
+flowchart TD
+    A["写笔记"] --> B["发布网站"]
+    B --> C["查看图表"]
+```
+````
+
+支持流程图、时序图、类图、状态图、ER 图、甘特图、饼图和思维导图等 Mermaid 语法。有图表时才加载本地渲染引擎，无需外部 CDN；明暗主题切换会同步更新图表，手机上可横向滚动宽图，并可展开查看源码。图表出错时保留源码，不影响其他内容。图中自定义的颜色会保留。
+
+修改渲染代码或升级依赖后运行 `npm run build:mermaid`，将生成的 `assets/js/mermaid/` 与源码一并提交。
+
 模板预先集成了两个内容插件：`runcode` 把代码块变成可在浏览器中直接运行 HTML 的运行框，`pin`/`card` 把 callout 变成用于展示短句、诗词的样式卡片。两者都用纯 Markdown 语法书写，在 Obsidian 里保持原生可读——转换只发生在构建阶段。
 
 可运行代码使用普通 fenced code block：
@@ -120,6 +134,7 @@ MyMind/notes/hello-world/cover.svg
 - `MyMind` 下的文章文件不需要 `YYYY-MM-DD-` 前缀。
 - 文章同名素材目录会自动发布到文章 URL 下。
 - 带有 `runcode` 标记的代码块会转换成网页运行框。
+- `mermaid` 代码块会在浏览器中渲染为支持明暗主题的图表。
 - `[!card]`、`[!pin]`、`[!poem]` 会转换成网页卡片。
 - 标签页和分类页自动生成。
 - GitHub Actions 使用 Pages artifact 部署。

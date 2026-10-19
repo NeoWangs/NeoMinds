@@ -8,6 +8,7 @@ NeoXMind 是一个个人 Obsidian 数字资源发布平台。
 
 - 在 Obsidian 中直接管理文章和资源；
 - 保留目录分类、双链、图片嵌入、Callout 等 Obsidian 写作体验；
+- 自动渲染 Mermaid 流程图、时序图等图表，支持明暗主题与横向滚动；
 - 自动生成首页、分类、标签、归档、搜索和知识图谱；
 - Markdown 文件不需要 Jekyll 默认的日期文件名前缀；
 - 图片、PDF 等资源与笔记放在同一个 vault 中；
@@ -51,6 +52,8 @@ bundle exec jekyll serve
 npm install
 npm run build:graph
 ```
+
+Mermaid 图表同样使用随站点发布的本地 bundle，版本由 `package-lock.json` 锁定。修改 `_javascript/mermaid.js` 或升级 Mermaid 后运行 `npm run build:mermaid`；`npm run build` 会构建两套脚本。生成的 `assets/js/mermaid/` 需要一并提交，GitHub Actions 的 Jekyll 构建即可直接发布，无需访问 Mermaid CDN。
 
 ## 写文章
 
@@ -184,6 +187,19 @@ bundle exec jekyll build
 > [!note] 提示
 > 这是一段 Callout。
 ```
+
+Mermaid 图表使用标准代码块，无需额外的 front matter 或 Liquid 标签：
+
+````markdown
+```mermaid
+flowchart TD
+    A["开始"] --> B{"是否完成？"}
+    B -->|是| C["结束"]
+    B -->|否| A
+```
+````
+
+也支持 `sequenceDiagram`、`classDiagram`、`stateDiagram-v2`、`erDiagram`、`gantt`、`pie`、`mindmap` 等 Mermaid 图表。引擎只在含图表的页面加载，具体图表类型按需加载；图表随网站主题更新，宽图可横向滚动，下方可展开源码。加载或语法出错时保留源码，单张图出错不影响其他图表。图中通过 `classDef` 等语法指定的颜色会保留。
 
 另外支持可运行 HTML 代码块：
 

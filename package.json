@@ -2,11 +2,13 @@
   "name": "neoxmind",
   "private": true,
   "scripts": {
-    "build": "npm run build:graph",
-    "build:graph": "node scripts/build_graph_bundle.mjs"
+    "build": "npm run build:graph && npm run build:mermaid",
+    "build:graph": "node scripts/build_graph_bundle.mjs",
+    "build:mermaid": "node scripts/build_mermaid_bundle.mjs"
   },
   "dependencies": {
     "d3-force": "^3.0.0",
+    "mermaid": "12.2.0",
     "pixi.js": "^8.0.0"
   },
   "devDependencies": {
