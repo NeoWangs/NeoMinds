@@ -8,7 +8,7 @@ NeoXMind 是一个个人 Obsidian 数字资源发布平台。
 
 - 在 Obsidian 中直接管理文章和资源；
 - 保留目录分类、双链、图片嵌入、Callout 等 Obsidian 写作体验；
-- 自动渲染 Mermaid 流程图、时序图等图表，支持明暗主题与横向滚动；
+- 使用 Pele 渲染 Mermaid 流程图、时序图等图表，支持明暗主题、缩放与拖动；
 - 自动生成首页、分类、标签、归档、搜索和知识图谱；
 - Markdown 文件不需要 Jekyll 默认的日期文件名前缀；
 - 图片、PDF 等资源与笔记放在同一个 vault 中；
@@ -53,7 +53,7 @@ npm install
 npm run build:graph
 ```
 
-Mermaid 图表同样使用随站点发布的本地 bundle，版本由 `package-lock.json` 锁定。修改 `_javascript/mermaid.js` 或升级 Mermaid 后运行 `npm run build:mermaid`；`npm run build` 会构建两套脚本。生成的 `assets/js/mermaid/` 需要一并提交，GitHub Actions 的 Jekyll 构建即可直接发布，无需访问 Mermaid CDN。
+图表使用 [Pele](https://github.com/obsidianmd/pele) 渲染，保留 Mermaid 代码块语法，不依赖 Mermaid.js。Pele 使用随站点发布的本地 bundle，版本由 `package-lock.json` 锁定。修改 `_javascript/pele.js` 或升级 Pele 后运行 `npm run build:pele`；`npm run build` 会构建知识图谱和图表两套脚本。生成的 `assets/js/pele/` 需要一并提交，GitHub Actions 的 Jekyll 构建即可直接发布，无需访问外部 CDN。
 
 ## 写文章
 
@@ -199,7 +199,9 @@ flowchart TD
 ```
 ````
 
-也支持 `sequenceDiagram`、`classDiagram`、`stateDiagram-v2`、`erDiagram`、`gantt`、`pie`、`mindmap` 等 Mermaid 图表。引擎只在含图表的页面加载，具体图表类型按需加载；图表随网站主题更新，宽图可横向滚动，下方可展开源码。加载或语法出错时保留源码，单张图出错不影响其他图表。图中通过 `classDef` 等语法指定的颜色会保留。
+也支持 `sequenceDiagram`、`classDiagram`、`stateDiagram-v2`、`erDiagram`、`gantt`、`pie`、`mindmap` 等 Mermaid 图表。Pele 引擎只在含图表的页面加载，具体图表类型按需加载；图表通过 CSS 变量随网站主题更新，无需重新绘制。宽图会适应容器，可用按钮、双击或双指缩放，放大后可拖动查看，下方可展开源码。容器尺寸与字体变化时会自动调整布局，同时保留源码指定的图表方向。
+
+加载或语法出错时保留源码，单张图出错不影响其他图表。图中通过 `classDef` 等语法指定的颜色会保留。Pele 的兼容基线为 Mermaid 12.1.0，采用自己的布局；任意 HTML 标签和 JavaScript 点击回调不受支持，原有 Mermaid 的 `themeVariables` 应改为 Pele CSS 变量。详见 [Pele 兼容性说明](https://pele.run/compatibility)。
 
 另外支持可运行 HTML 代码块：
 
